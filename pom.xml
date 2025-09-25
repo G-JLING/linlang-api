@@ -6,7 +6,7 @@
     <parent>
         <groupId>me.jling</groupId>
         <artifactId>linlang</artifactId>
-        <version>1.0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>linlang-api</artifactId>
