@@ -4,7 +4,6 @@ package api.linlang.command;
  * Linlang Command
  * */
 
-import org.bukkit.command.CommandExecutor;
 
 import java.util.*;
 
