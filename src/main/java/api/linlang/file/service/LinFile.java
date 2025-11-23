@@ -5,8 +5,9 @@ import api.linlang.file.database.services.DataService;
 /**
  *
  */
-public interface Services {
+public interface LinFile {
     ConfigService config();
-    LangService lang();
-    DataService data();
+    LangService language();
+    DataService database();
+
 }

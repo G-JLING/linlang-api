@@ -1,9 +1,10 @@
-package api.linlang.init;
+package api.linlang.common;
 
+import api.linlang.command.LinCommand;
 import api.linlang.file.database.config.DbConfig;
 import api.linlang.file.database.repo.Repository;
 import api.linlang.file.database.types.DbType;
-import api.linlang.file.service.Services;
+import api.linlang.file.service.LinFile;
 
 import java.util.function.Function;
 
@@ -56,7 +57,8 @@ public interface Linlang extends AutoCloseable {
     /* ========================= 服务门面 ========================= */
 
     /** 访问已装配的 LinFile/LinData/LinLang 等服务门面。 */
-    Services services();
+    LinFile linFile();
+    LinCommand linCommand();
 
     /* ========================= 生命周期 ========================= */
 

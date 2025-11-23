@@ -1,4 +1,4 @@
-package api.linlang.init;
+package api.linlang.common;
 
 import java.util.ServiceLoader;
 
