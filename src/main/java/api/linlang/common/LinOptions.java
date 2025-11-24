@@ -31,12 +31,12 @@ public final class LinOptions {
     }
 
     /**
-     * 将本选项应用到 Linlang 实例（不触发 reload，由调用方决定何时 reload）
+     * 将本选项应用到 Linlang 的“配置器视图”（不触发 reload，由调用方决定何时 reload）
      */
-    public void applyTo(Linlang lin) {
+    public void applyTo(Linlang.Configurable lin) {
         if (usePluginLogger != null) lin.withPluginLogger(usePluginLogger);
-        if (initialLocale != null) lin.withInitialLanguage(initialLocale);
-        if (prefixProvider != null) lin.withCommandPrefixProvider(prefixProvider);
+        if (initialLocale   != null) lin.withInitialLanguage(initialLocale);
+        if (prefixProvider  != null) lin.withCommandPrefixProvider(prefixProvider);
         else if (fixedPrefix != null) lin.withCommandPrefix(fixedPrefix);
     }
 }
