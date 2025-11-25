@@ -32,6 +32,10 @@ public final class LinLog {
          * @param kv    结构化字段：<code>key, value, ...</code>
          */
         void audit(String event, Object... kv);
+
+        default void flushStartupToConsole() {}
+        default void flushOpToOnlineOps() {}
+        default void flushOpTo(Object op) {}
     }
     private static volatile Provider P = new Noop();
 
@@ -66,6 +70,11 @@ public final class LinLog {
      * <p>用于安全、合规、关键路径操作的留痕与检索。</p>
      */
     public static void audit(String event, Object...kv){ P.audit(event, kv); }
+    public static void flushStartupToConsole() { P.flushStartupToConsole(); }
+
+    public static void flushOpToOnlineOps() { P.flushOpToOnlineOps(); }
+
+    public static void flushOpTo(Object op) { P.flushOpTo(op); }
 
     /**
      * 空实现：未安装 Provider 时使用，不做任何输出。
@@ -83,5 +92,6 @@ public final class LinLog {
         System.arraycopy(b,0,r,a.length,b.length);
         return r;
     }
+
     private LinLog() {}
 }

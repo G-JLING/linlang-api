@@ -3,11 +3,7 @@ package api.linlang.common;
 import java.util.ServiceLoader;
 
 /**
- * 入口门面：负责发现并缓存运行时的 {@link Linlang} 实现，并提供装配便捷方法。
- *
- * <p><b>发现顺序</b>：优先通过 Bukkit 的 ServicesManager；否则回退 Java SPI（META-INF/services）。</p>
- * <p><b>线程安全</b>：惰性发现 + {@code volatile} 缓存。</p>
- * <p><b>使用建议</b>：非琳琅托管配置文件，可用 {@link #setup(Object, LinOptions)}；否则 {@link #init(Object, java.util.function.Function)}，
+ * 入口门面，其发现并缓存运行时的 {@link Linlang} 实现，是唯一使用入口。
  */
 public final class Lin {
 
@@ -54,33 +50,50 @@ public final class Lin {
     }
 
     /**
-     * 装载：发现 → 注入环境上下文 → 应用选项 → {@code reload()}。
-     * <p>若 {@code opts} 为 {@code null}，仅注入上下文并重载一次。</p>
+     * 装载：发现 → 注入环境上下文 → {@code reload()}。
+     * <p>用于分步骤初始化琳琅服务</p>
      *
-     * @param platformContext 宿主上下文（Bukkit 传 {@code JavaPlugin}，其他平台传相应句柄）
-     * @param opts 装配选项，可为 {@code null}
-     * @return 已就绪的运行时实例
+     * @param platformContext 运行环境上下文，在主类中传递 <code>this</code> 即可
+     * @return 已就绪的运行时实例，但未进行任何个性化设置
      */
-    public static Linlang setup(Object platformContext, LinOptions opts){
+    public static Linlang init(Object platformContext){
         var lin = find();
         if (lin instanceof Linlang.Configurable c) {
             c.withPlatformContext(platformContext);
-            if (opts != null) opts.applyTo(c);
             c.reload();
         }
         return lin;
     }
 
     /**
-     * 适用于琳琅托管文件的装载：首先注入上下文，再通过回调读取配置/语言以构建选项，随后应用并 {@code reload()}。
-     * <p>典型：配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言。</p>
+     * 装载：发现 -> 注入环境上下文 -> 通过回调读取配置/语言以构建选项 -> 应用并 {@code reload()}。
+     * <p>用于一站式初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言。</p>
      *
-     * @param platformContext 宿主上下文
-     * @param optionsBuilder 回调：接受 {@link Linlang}，返回要应用的 {@link LinOptions}，可为 {@code null}
-     * @return 已就绪的运行时实例
+     * @param platformContext 运行环境上下文，在主类中传递 <code>this</code> 即可
+     * @param linOptions 琳琅个性化设置实例
+     * @return 已就绪的运行时实例，且进行了个性化设置
      */
-    public static Linlang init(Object platformContext,
-                               java.util.function.Function<Linlang, LinOptions> optionsBuilder) {
+    public static Linlang setup(Object platformContext, LinOptions linOptions){
+        var lin = find();
+        if (lin instanceof Linlang.Configurable c) {
+            c.withPlatformContext(platformContext);
+            if (linOptions != null) linOptions.applyTo(c);
+            c.reload();
+        }
+        return lin;
+    }
+
+
+    /**
+     * 装载：发现 -> 注入环境上下文 -> 通过回调读取配置/语言以构建选项 -> 应用并 {@code reload()}。
+     * <p>用于一站式初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言。</p>
+     *
+     * @param platformContext 运行环境上下文，在主类中传递 <code>this</code> 即可
+     * @param optionsBuilder 回调：接受 {@link Linlang}，返回要应用的 {@link LinOptions}，可为 {@code null}
+     * @return 已就绪的运行时实例，且进行了个性化设置
+     */
+    public static Linlang setup(Object platformContext,
+                                java.util.function.Function<Linlang, LinOptions> optionsBuilder) {
         var lin = find();
         if (lin instanceof Linlang.Configurable c) {
             c.withPlatformContext(platformContext);
@@ -92,7 +105,7 @@ public final class Lin {
     }
 
     /**
-     * 只做“发现 → 注入上下文 → 应用选项”，不触发 {@code reload()}。
+     * 进行“发现 → 注入上下文 → 应用选项”，不触发 {@code reload()}。
      * <p>适合两阶段装配：先 {@code configure(...)}，完成自定义初始化后再显式调用 {@code reload()}。</p>
      *
      * @param platformContext 宿主上下文

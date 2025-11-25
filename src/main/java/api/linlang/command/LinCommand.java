@@ -1,10 +1,9 @@
 package api.linlang.command;
 
-/*
- * Linlang Command
+/**
+ * 琳琅命令服务。
+ *
  * */
-
-
 import java.util.*;
 
 public interface LinCommand {
