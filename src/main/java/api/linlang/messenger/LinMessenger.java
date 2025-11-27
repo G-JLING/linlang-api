@@ -1,4 +1,4 @@
-package api.linlang.message;
+package api.linlang.messenger;
 
 import java.util.Map;
 import java.util.function.Supplier;

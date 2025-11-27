@@ -1,5 +1,5 @@
 // linlang-core/src/main/java/io/linlang/file/runtime/PathResolver.java
-package api.linlang.file;
+package api.linlang.file.path;
 
 import java.nio.file.Path;
 

@@ -1,4 +1,4 @@
-package api.linlang.command;
+package api.linlang.command.message;
 
 /**
  * 门面：命令提示消息。

@@ -12,7 +12,7 @@ import java.lang.annotation.*;
  * 提供针对特定语言（locale）的注释说明。例如：
  * <pre><code>
  * {@literal @}I18nComment(locale = "zh_CN", lines = "欢迎语")
- * {@literal @}I18nComment(locale = "en_GB", lines = "Welcome message")
+ * {@literal @}I18nComment(locale = "en_GB", lines = "Welcome messenger")
  *  public String welcome;
  * </code></pre>
  */

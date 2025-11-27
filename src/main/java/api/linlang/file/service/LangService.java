@@ -39,7 +39,7 @@ public interface LangService {
 
     /**
      * 翻译：根据键返回模板文本，并按需处理占位、复数等。
-     * @param key 键，例如 "message.no-item-in-hand"
+     * @param key 键，例如 "messenger.no-item-in-hand"
      * @param args 可选参数，交由实现处理（占位替换等）
      */
     String tr(String key, Object... args);

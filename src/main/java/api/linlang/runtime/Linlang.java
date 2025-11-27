@@ -1,11 +1,11 @@
-package api.linlang.common;
+package api.linlang.runtime;
 
 import api.linlang.command.LinCommand;
 import api.linlang.file.database.config.DbConfig;
 import api.linlang.file.database.repo.Repository;
 import api.linlang.file.database.types.DbType;
-import api.linlang.file.service.LinFile;
-import api.linlang.message.LinMessenger;
+import api.linlang.file.LinFile;
+import api.linlang.messenger.LinMessenger;
 
 import java.util.function.Function;
 
@@ -16,7 +16,9 @@ public interface Linlang {
     void initDb(DbType type, DbConfig cfg);
     <T> Repository<T, ?> repo(Class<T> entityType);
 
-    // 服务门面
+    /*
+      ########################################  服务门面  ########################################
+     */
 
     /**
      * <p>琳琅的信息服务，可以方便地向任何位置（玩家或控制台）发送聊天框、动作栏、标题消息。</p>
@@ -39,6 +41,10 @@ public interface Linlang {
      * @return 可用的 linCommand 实例
      */
     LinCommand linCommand();
+
+    /*
+      ########################################  服务门面  ########################################
+     */
 
     default void close() {}
 

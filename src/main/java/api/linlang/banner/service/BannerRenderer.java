@@ -1,4 +1,4 @@
-package api.linlang.banner;
+package api.linlang.banner.service;
 
 import java.util.*;
 import java.util.function.Consumer;

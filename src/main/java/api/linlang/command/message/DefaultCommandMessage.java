@@ -1,4 +1,4 @@
-package api.linlang.command;
+package api.linlang.command.message;
 
 /**
  * 硬编码的默认命令提示消息。

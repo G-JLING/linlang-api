@@ -1,6 +1,5 @@
-package api.linlang.banner;
+package api.linlang.banner.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record BannerOptions(

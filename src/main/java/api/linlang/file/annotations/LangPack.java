@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @apiNote
  * 指定语言文件的文件名、存放路径以及格式。
- * <pre><code> {@literal @}LangPack(locale = "zh_CN", format = FileType.YAML, path = "linlang/command-message")
+ * <pre><code> {@literal @}LangPack(locale = "zh_CN", format = FileType.YAML, path = "linlang/command-messenger")
  * public final class ZhCN implements LocaleProvider{@literal <}T keys> {
  *      ...
  * }</code></pre>
