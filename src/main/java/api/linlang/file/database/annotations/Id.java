@@ -6,5 +6,11 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Retention(RUNTIME) @Target(FIELD)
-public @interface Id { boolean auto() default true; }
+/**
+ * 声明为主键
+ */
+@Retention(RUNTIME)
+@Target(FIELD)
+public @interface Id {
+    boolean auto() default true;
+}

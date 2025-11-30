@@ -14,3 +14,18 @@
     font-weight: 600;
     letter-spacing: .2px;
 }
+
+.jl-doc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 0;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.jl-doc-footer a { text-decoration: none; }
+@media (prefers-color-scheme: dark) {
+    .jl-doc-footer { border-top-color: #1f2937; }
+}

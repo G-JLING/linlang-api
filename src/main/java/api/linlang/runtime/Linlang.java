@@ -2,14 +2,16 @@ package api.linlang.runtime;
 
 import api.linlang.audit.LinLog;
 import api.linlang.command.LinCommand;
-import api.linlang.file.database.config.DbConfig;
-import api.linlang.file.database.repo.Repository;
-import api.linlang.file.database.types.DbType;
 import api.linlang.file.LinFile;
 import api.linlang.messenger.LinMessenger;
 
 import java.util.function.Function;
 
+/**
+ * 琳琅主类
+ *
+ * 琳琅动态服务的唯一入口
+ */
 public interface Linlang {
 
     /**
@@ -59,10 +61,10 @@ public interface Linlang {
 
     /**
      * 安全地关闭琳琅服务
+     *
      * <p>在软件卸载时调用</p>
      */
-    default void close() {
-    }
+    default void close() {}
 
     /**
      * 设置琳琅服务的个性化设置
@@ -74,18 +76,26 @@ public interface Linlang {
         return new Settings(this, c);
     }
 
+    /**
+     * 琳琅服务的个性化设置项
+     *
+     * <p>您可以不进行个性化设置，不会影响琳琅工作。但可能会使得一些服务的表现不像您想得那样。</p>
+     */
     final class Settings {
 
         private final Linlang owner;
         private final Configurable c;
 
+        /**
+         * @hidden
+         */
         Settings(Linlang owner, Configurable c) {
             this.owner = owner;
             this.c = c;
         }
 
         /**
-         * 琳琅审计与日志服务的日志方式
+         * 设置琳琅审计与日志服务的日志方式
          *
          * <p>是否使得琳琅审计（LinLog）归于平台包装的日志通道。如 Bukkit 的 <code>plugin.getLogger()</code>
          *
@@ -97,7 +107,7 @@ public interface Linlang {
         }
 
         /**
-         * 琳琅的本地化
+         * 设置琳琅的本地化
          *
          * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
          */
@@ -107,7 +117,7 @@ public interface Linlang {
         }
 
         /**
-         * 琳琅内建提示消息的前缀
+         * 设置琳琅内建提示消息的前缀
          *
          * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
          *
@@ -115,15 +125,17 @@ public interface Linlang {
          *
          * @param prefix 前缀文本
          */
-        public Settings commandPrefix(String prefix) {
+        public Settings fixedPrefix(String prefix) {
             c.withCommandPrefix(prefix);
             return this;
         }
 
         /**
+         * 设置琳琅内建提示消息的前缀
+         *
          * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
-         * <b>动态前缀</b>
-         * <p>与 <code>fixedPrefix()</code> 互斥</p>
+         *
+         * <p>与 {@link #fixedPrefix(String)} 互斥</p>
          *
          * @param func 函数式接口
          */
@@ -134,6 +146,7 @@ public interface Linlang {
 
         /**
          * 应用设置
+         *
          * <p>在调用 {@link #settings()} 后需调用此方法以使设置生效</p>
          * <p>与 {@link #reload()} 任选其一，此方法主要用于提供链式调用体验</p>
          */
@@ -143,6 +156,10 @@ public interface Linlang {
         }
     }
 
+
+    /**
+     * @hidden
+     */
     interface Configurable {
         Configurable withPlatformContext(Object platformContext);
 

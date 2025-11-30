@@ -73,16 +73,21 @@
         <a href="https://jling.me" title="返回 JLING 首页">返回主站</a>
       </div>
     ]]></header>
-                    <header><![CDATA[
-      <script>
-      (function(){
-        var l=document.createElement('link');
-        l.rel='icon';
-        l.href='favicon.ico';
-        document.head.appendChild(l);
-      })();
-      </script>
-    ]]></header>
+
+                    <footer><![CDATA[
+  <div class="jl-doc-footer">
+    <div>
+      此 Javadoc 的 CSS 来自
+      <a href="https://github.com/BukkitAPI-Translation-Group/Chinese_BukkitAPI" target="_blank">
+        Bukkit 中文文档
+      </a>
+      项目
+    </div>
+    <div>
+      © JLING · 保留部分权利
+    </div>
+  </div>
+]]></footer>
                 </configuration>
                 <executions>
                     <execution>

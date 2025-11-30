@@ -3,7 +3,8 @@ package api.linlang.runtime;
 import java.util.function.Function;
 
 /**
- * 琳琅服务的个性化设置
+ * 琳琅服务的个性化设置类，仅适用于 {@link Lin#configure(Object, LinOptions)}
+ *
  * <p>您可以不进行个性化设置，不会影响琳琅工作。但可能会使得一些服务的表现不像您想得那样。</p>
  */
 public final class LinOptions {
@@ -13,7 +14,7 @@ public final class LinOptions {
     public Function<Object, String> prefixProvider;
 
     /**
-     * 琳琅的本地化
+     * 设置琳琅的本地化
      *
      * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
      */
@@ -23,7 +24,7 @@ public final class LinOptions {
     }
 
     /**
-     * 琳琅审计与日志服务的日志方式
+     * 设置琳琅审计与日志服务的日志方式
      *
      * <p>是否使得琳琅审计（LinLog）归于平台包装的日志通道。如 Bukkit 的 <code>plugin.getLogger()</code>
      *
@@ -35,7 +36,7 @@ public final class LinOptions {
     }
 
     /**
-     * 琳琅内建提示消息的前缀
+     * 设置琳琅内建提示消息的前缀
      *
      * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
      *
@@ -50,9 +51,11 @@ public final class LinOptions {
     }
 
     /**
-     * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
-     * <b>动态前缀</b>
-     * <p>与 <code>fixedPrefix()</code> 互斥</p>
+     * 设置琳琅内建提示消息的前缀
+     *
+     * 设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
+     *
+     * <p>与 {@link #fixedPrefix(String)} 选其一</p>
      *
      * @param func 函数式接口
      */
