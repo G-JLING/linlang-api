@@ -1,8 +1,11 @@
 package api.linlang.banner.service;
 
+import api.linlang.banner.BannerOptions;
+
 import java.util.*;
 import java.util.function.Consumer;
 
+/** @hidden */
 public final class BannerRenderer {
     private BannerRenderer(){}
 

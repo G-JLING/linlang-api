@@ -57,11 +57,39 @@
                     <doclint>none</doclint>
                     <doctitle>Linlang API</doctitle>
                     <windowtitle>Linlang API</windowtitle>
+                    <includePackageNames>
+                        me.jling.linlang.api*:api.linlang.*
+                    </includePackageNames>
+                    <stylesheetfile>${project.basedir}/javadoc/stylesheet.css</stylesheetfile>
+
+                    <additionalJOptions>
+                        <additionalJOption>
+                            --add-stylesheet=${project.basedir}/javadoc/extra.css
+                        </additionalJOption>
+                    </additionalJOptions>
+
+                    <header><![CDATA[
+      <div class="jl-doc-header">
+        <a href="https://jling.me" title="返回 JLING 首页">返回主站</a>
+      </div>
+    ]]></header>
+                    <header><![CDATA[
+      <script>
+      (function(){
+        var l=document.createElement('link');
+        l.rel='icon';
+        l.href='favicon.ico';
+        document.head.appendChild(l);
+      })();
+      </script>
+    ]]></header>
                 </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <goals><goal>jar</goal></goals>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

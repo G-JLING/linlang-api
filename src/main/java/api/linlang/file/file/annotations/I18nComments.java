@@ -1,4 +1,4 @@
-package api.linlang.file.annotations;
+package api.linlang.file.file.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,7 +16,6 @@ import java.lang.annotation.Target;
  **/
 @Retention(RetentionPolicy.RUNTIME)
 @Deprecated(forRemoval = false, since = "internal")
-@org.jetbrains.annotations.ApiStatus.Internal
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface I18nComments {
     I18nComment[] value();

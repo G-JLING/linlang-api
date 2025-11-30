@@ -1,4 +1,6 @@
-package api.linlang.file.annotations;
+package api.linlang.file.file.annotations;
+
+import api.linlang.file.file.migrator.Migrator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -12,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>此注解应用于类和字段。</p>
  *
  * @apiNote
- * Linlang 框架可根据版本号触发对应的 {@link api.linlang.file.implement.Migrator} 执行迁移。
+ * Linlang 框架可根据版本号触发对应的 {@link Migrator} 执行迁移。
  */
 @Retention(RUNTIME)
 @Target({TYPE})

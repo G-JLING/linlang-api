@@ -1,7 +1,8 @@
-package api.linlang.banner.service;
+package api.linlang.banner;
 
 import java.util.List;
 
+/** @hidden */
 public record BannerOptions(
         String initials,      // 牌头 ASCII 字母，如 "MP"
         String teamZh, String teamEn,

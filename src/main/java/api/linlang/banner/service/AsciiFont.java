@@ -2,6 +2,7 @@ package api.linlang.banner.service;
 
 import java.util.*;
 
+/** @hidden */
 public final class AsciiFont {
     private final Map<Character, List<String>> glyphs;
     private final int height;

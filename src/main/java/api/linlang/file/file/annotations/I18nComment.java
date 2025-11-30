@@ -1,5 +1,5 @@
 // called.linlang.annotations.file.I18nComment.java
-package api.linlang.file.annotations;
+package api.linlang.file.file.annotations;
 
 import java.lang.annotation.*;
 

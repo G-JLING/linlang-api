@@ -1,6 +1,6 @@
-package api.linlang.file.annotations;
+package api.linlang.file.file.annotations;
 
-import api.linlang.file.types.FileType;
+import api.linlang.file.file.types.FileType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

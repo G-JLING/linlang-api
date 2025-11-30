@@ -3,7 +3,6 @@ package api.linlang.banner;
 import api.linlang.audit.LinLog;
 import api.linlang.banner.provider.BannerFontProvider;
 import api.linlang.banner.service.AsciiFont;
-import api.linlang.banner.service.BannerOptions;
 import api.linlang.banner.service.BannerRenderer;
 
 import java.util.ServiceLoader;
@@ -19,7 +18,7 @@ public final class LinBanner {
         BannerRenderer.print(font(), opt, LinLog::info);
     }
 
-    /** 打印到自定义输出（如 Bukkit Logger），更通用 */
+    /** 打印到自定义输出 */
     public static void print(Consumer<String> sink, BannerOptions opt) {
         BannerRenderer.print(font(), opt, sink);
     }

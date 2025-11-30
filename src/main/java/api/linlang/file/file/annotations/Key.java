@@ -1,4 +1,4 @@
-package api.linlang.file.annotations;
+package api.linlang.file.file.annotations;
 
 
 import java.lang.annotation.Retention;
@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>此注解应用于字段。</p>
  *
  * @apiNote
- * 当默认命名策略（如 {@link api.linlang.file.annotations.NamingStyle}）无法满足要求时使用。
+ * 当默认命名策略（如 {@link NamingStyle}）无法满足要求时使用。
  * 例如：
  * <pre>
  * &#064;Key("custom-key")

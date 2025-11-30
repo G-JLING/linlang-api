@@ -1,4 +1,4 @@
-package api.linlang.file.doc;
+package api.linlang.file.file.migrator;
 
 import java.util.*;
 

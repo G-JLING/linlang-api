@@ -1,6 +1,4 @@
-package api.linlang.file.implement;
-
-import api.linlang.file.doc.MutableDocument;
+package api.linlang.file.file.migrator;
 
 public interface Migrator {
     int from(); int to();

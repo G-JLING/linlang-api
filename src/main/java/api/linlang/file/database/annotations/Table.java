@@ -1,4 +1,4 @@
-package api.linlang.file.annotations;
+package api.linlang.file.database.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
