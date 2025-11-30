@@ -57,9 +57,6 @@
                     <doclint>none</doclint>
                     <doctitle>Linlang API</doctitle>
                     <windowtitle>Linlang API</windowtitle>
-                    <includePackageNames>
-                        me.jling.linlang.api*:api.linlang.*
-                    </includePackageNames>
                     <stylesheetfile>${project.basedir}/javadoc/stylesheet.css</stylesheetfile>
 
                     <additionalJOptions>
