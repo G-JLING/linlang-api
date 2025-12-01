@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @apiNote
- * 这是一个容器，不要使用。一定要使用时，按照下文<br>
+ * 这是一个容器，不要使用，因为用起来很麻烦
+ *
  * <pre><code>
  * {@literal @}I18nComments({
  *   {@literal @}I18nComment(locale = "zh_CN", lines = {"中文注释1", "中文注释2"}),
@@ -15,7 +15,6 @@ import java.lang.annotation.Target;
  * }) </code></pre>
  **/
 @Retention(RetentionPolicy.RUNTIME)
-@Deprecated(forRemoval = false, since = "internal")
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface I18nComments {
     I18nComment[] value();

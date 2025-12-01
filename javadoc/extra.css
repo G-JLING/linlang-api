@@ -20,9 +20,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    padding: 8px 0;
-    border-top: 1px solid #e5e7eb;
-    font-size: 12px;
+    font-size: 16px;
     line-height: 1.5;
 }
 .jl-doc-footer a { text-decoration: none; }

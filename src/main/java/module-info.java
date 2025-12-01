@@ -11,20 +11,17 @@
 module linlang.api {
     exports api.linlang.runtime;
     exports api.linlang.file;
+    exports api.linlang.file.file;
     exports api.linlang.file.file.annotations;
-    exports api.linlang.file.file.service;
-    exports api.linlang.file.file.implement;
-    exports api.linlang.file.file.types;
-    exports api.linlang.file.file.path;
     exports api.linlang.file.file.migrator;
+    exports api.linlang.file.file.implement;
     exports api.linlang.file.database.annotations;
-    exports api.linlang.file.database.repo;
-    exports api.linlang.file.database.config;
-    exports api.linlang.file.database.types;
     exports api.linlang.file.database.dto;
-    exports api.linlang.file.database.services;
+    exports api.linlang.file.database.repo;
+    exports api.linlang.file.database;
     exports api.linlang.command;
     exports api.linlang.messenger;
     exports api.linlang.audit;
     exports api.linlang.banner;
+    exports api.linlang.file.file.path;
 }

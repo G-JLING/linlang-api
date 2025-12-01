@@ -3,8 +3,11 @@ package api.linlang.file.file.path;
 
 import java.nio.file.Path;
 
-/** 由适配层提供 Bukkit dataFolder。非 Bukkit 环境可用默认实现。 */
+/**
+ * 文件路径解析器
+ * @hidden
+ */
 public interface PathResolver {
-    Path root();                // dataFolder
+    Path root();
     default Path sub(String first, String... more){ return root().resolve(Path.of(first, more)); }
 }

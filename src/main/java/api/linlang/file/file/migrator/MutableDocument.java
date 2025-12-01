@@ -3,7 +3,7 @@ package api.linlang.file.file.migrator;
 import java.util.*;
 
 /**
- * 供迁移器使用的可变文档（键路径以 '.' 分割）。
+ * 供迁移器使用的可变文档
  */
 public final class MutableDocument {
     private final Map<String, Object> root;

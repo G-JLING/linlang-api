@@ -71,20 +71,17 @@
       </div>
     ]]></header>
 
-                    <footer><![CDATA[
+                    <bottom><![CDATA[
   <div class="jl-doc-footer">
     <div>
       此 Javadoc 的 CSS 来自
       <a href="https://github.com/BukkitAPI-Translation-Group/Chinese_BukkitAPI" target="_blank">
-        Bukkit 中文文档
+        Bukkit 中文文档 |  © JLING · 保留部分权利
       </a>
       项目
     </div>
-    <div>
-      © JLING · 保留部分权利
-    </div>
   </div>
-]]></footer>
+]]></bottom>
                 </configuration>
                 <executions>
                     <execution>

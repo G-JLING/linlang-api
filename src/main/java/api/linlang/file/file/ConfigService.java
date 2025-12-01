@@ -1,4 +1,4 @@
-package api.linlang.file.file.service;
+package api.linlang.file.file;
 
 /**
  * 配置文件服务

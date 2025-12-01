@@ -8,23 +8,15 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 为字段指定固定的键名，覆盖自动生成的命名规则。
+ * 为字段指定自定义的键名，覆盖自动生成的命名
  *
- * <p>此注解应用于字段。</p>
- *
- * @apiNote
- * 当默认命名策略（如 {@link NamingStyle}）无法满足要求时使用。
- * 例如：
- * <pre>
- * &#064;Key("custom-key")
- * public String myValue;
- * </pre>
+ * <p>此注解应用于字段</p>
  */
 @Retention(RUNTIME)
 @Target({FIELD})
 public @interface Key {
     /**
-     * 指定键名。
+     * 指定键名
      */
     String value();
 }

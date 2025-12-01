@@ -1,4 +1,4 @@
-package api.linlang.file.file.service;
+package api.linlang.file.file;
 
 import api.linlang.file.file.implement.LocaleProvider;
 import java.util.List;

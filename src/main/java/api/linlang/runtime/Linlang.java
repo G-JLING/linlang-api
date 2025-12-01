@@ -47,14 +47,6 @@ public interface Linlang {
      */
     LinCommand linCommand();
 
-
-    /**
-     * <p>琳琅的审计与日志服务</p>
-     *
-     * @return 可用的 LinLog 实例
-     */
-    LinLog linLog();
-
     /*
       ########################################  服务门面  ########################################
      */

@@ -4,7 +4,7 @@ package api.linlang.audit;
  * <h2>审计与日志</h2>
  * <p>初始化琳琅服务后可用</p>
  *
- * <p>审计与日志服务提供静态调用门面 {@link LinLog}，您也可以使用 {@link api.linlang.runtime.Linlang#linLog()} 方法来使用审计与日志</p>
+ * <p>审计与日志服务提供静态调用门面 {@link LinLog}</p>
  */
 public final class LinLog {
     /**

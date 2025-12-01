@@ -4,12 +4,11 @@ package api.linlang.file.file.annotations;
 import java.lang.annotation.*;
 
 /**
- * 多语言注释，用于为类或字段提供针对特定语言的注释说明。
+ * 多语言注释
+ * <p>注意，此注解不应用于配置文件类，即被 {@link ConfigFile} 注解的文件类</p>
  *
- * <p>此注解应用于类和字段。特别的，应用于 @ConfigFile 注解的类，且注册在 ConfigService 服务时无效。</p>
+ * <p>此注解应用于类和字段</p>
  *
- * @apiNote
- * 提供针对特定语言（locale）的注释说明。例如：
  * <pre><code>
  * {@literal @}I18nComment(locale = "zh_CN", lines = "欢迎语")
  * {@literal @}I18nComment(locale = "en_GB", lines = "Welcome messenger")
@@ -21,12 +20,12 @@ import java.lang.annotation.*;
 @Repeatable(I18nComments.class)
 public @interface I18nComment {
     /**
-     * 语言代码，例如 {@code zh_CN} 或 {@code en_GB}。
+     * 语言代码，遵循 language_REGION 规则，如 zh_CN
      */
     String locale();
 
     /**
-     * 注释的具体内容，支持多行。
+     * 注释内容。每一个数组元素为一行
      */
     String[] lines();
 }

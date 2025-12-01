@@ -6,6 +6,11 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * 声明为索引
+ *
+ * <p>此注解应用于字段</p>
+ */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Index {

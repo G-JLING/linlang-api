@@ -1,4 +1,4 @@
-package api.linlang.file.file.types;
+package api.linlang.file.file;
 
 import api.linlang.file.file.annotations.ConfigFile;
 import api.linlang.file.file.annotations.LangPack;

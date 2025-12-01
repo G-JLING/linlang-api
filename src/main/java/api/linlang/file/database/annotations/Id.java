@@ -8,6 +8,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * 声明为主键
+ *
+ * <p>此注解应用于字段</p>
  */
 @Retention(RUNTIME)
 @Target(FIELD)
