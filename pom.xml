@@ -5,7 +5,7 @@
 
     <groupId>me.jling</groupId>
     <artifactId>linlang-api</artifactId>
-    <version>1.0.4.5-SNAPSHOT</version>
+    <version>1.0.4.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Linlang-API</name>
     <description>Platform-agnostic interfaces and bootstrap for Linlang runtime.</description>
@@ -76,9 +76,9 @@
     <div>
       此 Javadoc 的 CSS 来自
       <a href="https://github.com/BukkitAPI-Translation-Group/Chinese_BukkitAPI" target="_blank">
-        Bukkit 中文文档 |  © JLING · 保留部分权利
+        Bukkit 中文文档
       </a>
-      项目
+      项目 | © JLING · 保留部分权利
     </div>
   </div>
 ]]></bottom>

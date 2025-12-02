@@ -1,4 +1,4 @@
 /**
- * <p>审计与日志</p>
+ * 审计与日志服务
  */
 package api.linlang.audit;

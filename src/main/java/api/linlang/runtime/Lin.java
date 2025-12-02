@@ -13,7 +13,7 @@ public final class Lin {
      *
      * @hidden
      */
-    public static final String API_VERSION = "1.0.4.5";
+    public static final String API_VERSION = "1.0.4.6";
 
     /**
      * 获取已注册的运行时实现；若不存在则抛出 {@link IllegalStateException}。

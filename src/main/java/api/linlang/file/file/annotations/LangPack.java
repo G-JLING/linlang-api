@@ -22,20 +22,19 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface LangPack {
 
     /**
-     * 语言代码，如 @{code zh_CN}
-     * 即 language_REGION 格式
-     * */
+     * 语言代码，遵循 language_REGION 规则，例如 zh_CN
+     */
     String locale();
 
     /**
-     * 文件名（不带扩展名），例如 {@code zh_CN}
-     * 默认为语言代码
-     * */
+     * 文件名（不含扩展名），默认为语言代码
+     */
     String name() default "";
 
     /**
-     * 配置文件相对路径（相对于插件根目录）。
-     * 默认为空，即插件根目录。
+     * 配置文件相对路径（相对于插件根目录）
+     *
+     * <p>默认时，在插件目录的 lang 文件夹</p>
      */
     String path() default "lang";
 

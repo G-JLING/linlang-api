@@ -23,5 +23,4 @@ module linlang.api {
     exports api.linlang.messenger;
     exports api.linlang.audit;
     exports api.linlang.banner;
-    exports api.linlang.file.file.path;
 }
