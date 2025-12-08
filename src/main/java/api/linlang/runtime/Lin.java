@@ -16,6 +16,32 @@ public final class Lin {
     public static final String API_VERSION = "1.0.4.6";
 
     /**
+     * 尝试通过运行时提供的 factory 方法为指定 platformContext 创建一个 per-plugin 的 facade。
+     * 若运行时未提供相应 factory，则返回原始 lin 实例。
+     * @param lin
+     * @param platformContext
+     * @return
+     */
+    private static Linlang maybeCreateFacade(Linlang lin, Object platformContext) {
+        if (lin == null || platformContext == null) return lin;
+        // 尝试若干常见的 factory 方法名，接受单个 Object 参数并返回 Linlang
+        String[] names = new String[]{"createFacade", "createFor", "createForPlugin", "installFor", "create"};
+        for (String name : names) {
+            try {
+                java.lang.reflect.Method m = lin.getClass().getMethod(name, Object.class);
+                Object out = m.invoke(lin, platformContext);
+                if (out instanceof Linlang) return (Linlang) out;
+            } catch (NoSuchMethodException ignored) {
+                // try next name
+            } catch (Throwable ignored) {
+                // invocation problem - ignore and continue
+            }
+        }
+        return lin;
+    }
+
+
+    /**
      * 获取已注册的运行时实现；若不存在则抛出 {@link IllegalStateException}。
      *
      * @return 非空的运行时实例
@@ -64,6 +90,7 @@ public final class Lin {
      */
     public static Linlang init(Object platformContext){
         var lin = find();
+        lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Configurable c) {
             c.withPlatformContext(platformContext);
             c.reload();

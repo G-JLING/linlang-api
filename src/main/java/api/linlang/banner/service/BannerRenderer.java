@@ -1,6 +1,8 @@
 package api.linlang.banner.service;
 
+import api.linlang.audit.LinLog;
 import api.linlang.banner.BannerOptions;
+import api.linlang.banner.provider.BannerFontProvider;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -43,7 +45,7 @@ public final class BannerRenderer {
         int h = font.height();
         List<String> out = new ArrayList<>(h);
         for (int r=0;r<h;r++){
-            StringBuilder sb = new StringBuilder("  "); // 左侧缩进
+            StringBuilder sb = new StringBuilder("  ");
             for (int i=0;i<word.length();i++){
                 char ch = word.charAt(i);
                 List<String> g = font.glyph(ch);
