@@ -59,4 +59,11 @@ public interface LangService {
      */
     String tr(String key, Object... args);
 
+    /**
+     * 重新读取磁盘上所有绑定的文件并应用
+     *
+     * <p>若文件被更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
+     */
+    default void reload() {};
+
 }
