@@ -4,7 +4,9 @@ import java.util.ServiceLoader;
 import java.util.function.Function;
 
 /**
- * 入口门面，其发现并缓存运行时的 {@link Linlang} 实现，是唯一使用入口。
+ * 琳琅的入口门面，是唯一使用入口
+ *
+ * <p>其发现一个可用的琳琅服务提供给插件，并提供管理琳琅服务的方法</p>
  */
 public final class Lin {
 
@@ -91,10 +93,10 @@ public final class Lin {
     public static Linlang init(Object platformContext){
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
-        if (lin instanceof Linlang.Configurable c) {
-            c.withPlatformContext(platformContext);
-            c.reload();
+        if (lin instanceof Linlang.Parametric p) {
+            p.withPlatformContext(platformContext);
         }
+        lin.reload();
         return lin;
     }
 
@@ -108,14 +110,16 @@ public final class Lin {
      */
     public static Linlang setup(Object platformContext, LinOptions linOptions){
         var lin = find();
-        if (lin instanceof Linlang.Configurable c) {
-            c.withPlatformContext(platformContext);
-            if (linOptions != null) linOptions.applyTo(c);
-            c.reload();
+        lin = maybeCreateFacade(lin, platformContext);
+        if (linOptions != null && lin instanceof Linlang.Parametric p) {
+            linOptions.applyParameters(p);
         }
+        if (lin instanceof Linlang.Configurable c && linOptions != null) {
+            linOptions.applyTo(c);
+        }
+        lin.reload();
         return lin;
     }
-
 
     /**
      * 装载：发现 -> 注入环境上下文 -> 通过回调读取个性化选项 {@link LinOptions} -> 应用并 {@code reload()}
@@ -129,12 +133,15 @@ public final class Lin {
      */
     public static Linlang setup(Object platformContext, Function<Linlang, LinOptions> optionsBuilder) {
         var lin = find();
-        if (lin instanceof Linlang.Configurable c) {
-            c.withPlatformContext(platformContext);
-            LinOptions opts = (optionsBuilder != null) ? optionsBuilder.apply(lin) : null;
-            if (opts != null) opts.applyTo(c);
-            c.reload();
+        lin = maybeCreateFacade(lin, platformContext);
+        LinOptions opts = (optionsBuilder != null) ? optionsBuilder.apply(lin) : null;
+        if (opts != null && lin instanceof Linlang.Parametric p) {
+            opts.applyParameters(p);
         }
+        if (lin instanceof Linlang.Configurable c && opts != null) {
+            opts.applyTo(c);
+        }
+        lin.reload();
         return lin;
     }
 
@@ -148,12 +155,16 @@ public final class Lin {
      */
     public static Linlang configure(Object platformContext, LinOptions opts){
         var lin = find();
-        if (lin instanceof Linlang.Configurable c) {
-            c.withPlatformContext(platformContext);
-            if (opts != null) opts.applyTo(c);
+        lin = maybeCreateFacade(lin, platformContext);
+        if (opts != null && lin instanceof Linlang.Parametric p) {
+            opts.applyParameters(p);
+        }
+        if (lin instanceof Linlang.Configurable c && opts != null) {
+            opts.applyTo(c);
         }
         return lin;
     }
+
 
     private static volatile Linlang cached;
 

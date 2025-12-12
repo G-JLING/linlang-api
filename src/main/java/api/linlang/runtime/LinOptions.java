@@ -14,7 +14,7 @@ public final class LinOptions {
     public Function<Object, String> prefixProvider;
 
     /**
-     * 设置琳琅的本地化
+     * 设置琳琅的启动语言（运行参数）
      *
      * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
      */
@@ -72,8 +72,16 @@ public final class LinOptions {
      */
     public void applyTo(Linlang.Configurable lin) {
         if (usePluginLogger != null) lin.withPluginLogger(usePluginLogger);
-        if (initialLocale   != null) lin.withInitialLanguage(initialLocale);
         if (prefixProvider  != null) lin.withCommandPrefixProvider(prefixProvider);
         else if (fixedPrefix != null) lin.withCommandPrefix(fixedPrefix);
+    }
+
+    /**
+     * 将本选项中的运行参数应用到 Linlang，等待 restart() 调用
+     *
+     * @hidden
+     */
+    public void applyParameters(Linlang.Parametric lin) {
+        if (initialLocale != null) lin.withInitialLanguage(initialLocale);
     }
 }
