@@ -1,65 +1,67 @@
 package api.linlang.banner.service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-/** @hidden */
-public final class AsciiFont {
-    private final Map<Character, List<String>> glyphs;
-    private final int height;
-    private final int gap;
+/**
+ * ASCII 字体描述，包含高度、字距与每个字符的 ASCII 图形。
+ */
+public interface AsciiFont {
 
-    private AsciiFont(Map<Character, List<String>> g, int h, int gap) {
-        this.glyphs = g;
-        this.height = h;
-        this.gap = gap;
-    }
+    /** 字体高度（行数） */
+    int height();
 
-    public int height() {
-        return height;
-    }
+    /** 字符间的水平间距（空格数） */
+    int gap();
 
-    public int gap() {
-        return gap;
-    }
+    /** 返回给定字符的 ASCII 图形，每个元素是一行 */
+    List<String> glyph(char ch);
 
-    public List<String> glyph(char ch) {
-        List<String> g = glyphs.get(Character.toUpperCase(ch));
-        if (g != null) return g;
-        if (Character.isWhitespace(ch)) {
-            return java.util.Collections.nCopies(height, "");
-        }
-        List<String> qm = glyphs.get('?');
-        if (qm != null) return qm;
-        return java.util.Collections.nCopies(height, "");
-    }
-
-
-    public static Builder builder() {
+    /** 创建一个新的字体构造器 */
+    static Builder builder() {
         return new Builder();
     }
 
-    public static final class Builder {
-        private final Map<Character, List<String>> g = new HashMap<>();
+    final class Builder {
         private int height = 5;
         private int gap = 1;
+        private final Map<Character, List<String>> glyphs = new java.util.LinkedHashMap<>();
 
         public Builder height(int h) {
             this.height = h;
             return this;
         }
 
-        public Builder gap(int gpx) {
-            this.gap = gpx;
+        public Builder gap(int g) {
+            this.gap = g;
             return this;
         }
 
-        public Builder put(char c, List<String> lines) {
-            g.put(Character.toUpperCase(c), List.copyOf(lines));
+        public Builder put(char ch, List<String> lines) {
+            glyphs.put(ch, List.copyOf(lines));
             return this;
         }
 
         public AsciiFont build() {
-            return new AsciiFont(Collections.unmodifiableMap(g), height, gap);
+            int h = this.height;
+            int g = this.gap;
+            Map<Character, List<String>> map = Map.copyOf(glyphs);
+            return new AsciiFont() {
+                @Override
+                public int height() {
+                    return h;
+                }
+
+                @Override
+                public int gap() {
+                    return g;
+                }
+
+                @Override
+                public List<String> glyph(char ch) {
+                    return map.getOrDefault(ch, List.of());
+                }
+            };
         }
     }
 }

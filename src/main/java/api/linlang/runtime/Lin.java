@@ -20,23 +20,21 @@ public final class Lin {
     /**
      * 尝试通过运行时提供的 factory 方法为指定 platformContext 创建一个 per-plugin 的 facade。
      * 若运行时未提供相应 factory，则返回原始 lin 实例。
+     *
      * @param lin
      * @param platformContext
      * @return
      */
     private static Linlang maybeCreateFacade(Linlang lin, Object platformContext) {
         if (lin == null || platformContext == null) return lin;
-        // 尝试若干常见的 factory 方法名，接受单个 Object 参数并返回 Linlang
-        String[] names = new String[]{"createFacade", "createFor", "createForPlugin", "installFor", "create"};
+        String[] names = new String[]{"create"};
         for (String name : names) {
             try {
                 java.lang.reflect.Method m = lin.getClass().getMethod(name, Object.class);
                 Object out = m.invoke(lin, platformContext);
                 if (out instanceof Linlang) return (Linlang) out;
             } catch (NoSuchMethodException ignored) {
-                // try next name
             } catch (Throwable ignored) {
-                // invocation problem - ignore and continue
             }
         }
         return lin;
@@ -75,7 +73,8 @@ public final class Lin {
             Object sm = bukkit.getMethod("getServicesManager").invoke(null);
             Object svc = sm.getClass().getMethod("load", Class.class).invoke(sm, Linlang.class);
             if (svc != null) return cached = (Linlang) svc;
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
 
         for (Linlang impl : ServiceLoader.load(Linlang.class)) {
             return cached = impl;
@@ -90,7 +89,7 @@ public final class Lin {
      * @param platformContext 运行环境上下文，在主类中传递 <code>this</code> 即可
      * @return 已就绪的运行时实例，但未进行任何个性化设置
      */
-    public static Linlang init(Object platformContext){
+    public static Linlang init(Object platformContext) {
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
@@ -105,10 +104,10 @@ public final class Lin {
      * <p>用于一站式初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
      *
      * @param platformContext 运行环境上下文，在主类中传递自身即可
-     * @param linOptions 琳琅个性化设置 {@link LinOptions} 实例
+     * @param linOptions      琳琅个性化设置 {@link LinOptions} 实例
      * @return 已就绪的运行时实例，且进行了个性化设置
      */
-    public static Linlang setup(Object platformContext, LinOptions linOptions){
+    public static Linlang setup(Object platformContext, LinOptions linOptions) {
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
         if (linOptions != null && lin instanceof Linlang.Parametric p) {
@@ -128,7 +127,7 @@ public final class Lin {
      * <p>在 <a href="http://jling.me/p/linlang/project/初始化">初始化</a> 页面中，您可以看到使用示例</p>
      *
      * @param platformContext 运行环境上下文，在主类中传递自身即可
-     * @param optionsBuilder 函数式接口，回调：接受 {@link Linlang}，返回要应用的 {@link LinOptions}，可为 {@code null}
+     * @param optionsBuilder  函数式接口，回调：接受 {@link Linlang}，返回要应用的 {@link LinOptions}，可为 {@code null}
      * @return 已就绪的运行时实例，且进行了个性化设置
      */
     public static Linlang setup(Object platformContext, Function<Linlang, LinOptions> optionsBuilder) {
@@ -150,10 +149,10 @@ public final class Lin {
      * <p>适合两阶段装配：先<code>Linlang lin = Lin.init()</code> 获得琳琅服务，然后使用此方法完成自定义初始化/p>
      *
      * @param platformContext 宿主上下文
-     * @param opts 装配选项，可为 {@code null}
+     * @param opts            装配选项，可为 {@code null}
      * @return 运行时实例（已应用选项但未重载）
      */
-    public static Linlang configure(Object platformContext, LinOptions opts){
+    public static Linlang configure(Object platformContext, LinOptions opts) {
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
         if (opts != null && lin instanceof Linlang.Parametric p) {
@@ -168,5 +167,6 @@ public final class Lin {
 
     private static volatile Linlang cached;
 
-    private Lin() {}
+    private Lin() {
+    }
 }

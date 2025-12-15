@@ -8,6 +8,11 @@ import api.linlang.banner.service.BannerRenderer;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
+/**
+ * ASCII 铭牌打印入口。
+ *
+ * <p>通过 SPI 发现 {@link BannerFontProvider} 并渲染 ASCII 铭牌。</p>
+ */
 public final class LinBanner {
     private static volatile AsciiFont CACHED;
 
@@ -15,24 +20,38 @@ public final class LinBanner {
 
     /** 打印到 LinLog（INFO） */
     public static void printWithLogs(BannerOptions opt) {
-        BannerRenderer.print(font(), opt, LinLog::info);
+        print(LinLog::info, opt);
     }
 
     /** 打印到自定义输出 */
     public static void print(Consumer<String> sink, BannerOptions opt) {
-        BannerRenderer.print(font(), opt, sink);
+        AsciiFont font = resolveFont();
+        if (font == null) {
+            LinLog.warn("[linbanner] no ascii font; skipping banner print.");
+            return;
+        }
+        BannerRenderer.print(font, opt, sink);
     }
 
-    /** 通过 SPI 拿字体，失败则回退到内建默认字体 */
-    private static AsciiFont font() {
+    /** 通过 SPI 拿字体；若无可用字体则返回 null */
+    private static AsciiFont resolveFont() {
         AsciiFont f = CACHED;
         if (f != null) return f;
+
         for (BannerFontProvider p : ServiceLoader.load(BannerFontProvider.class)) {
-            f = p.font();
-            if (f != null) { CACHED = f; return f; }
+            try {
+                f = p.font();
+                if (f != null) {
+                    CACHED = f;
+                    return f;
+                }
+            } catch (Throwable ignored) {
+            }
         }
-        return f;
+        return null;
     }
 
-    public static BannerOptions.Builder options() { return BannerOptions.builder(); }
+    public static BannerOptions.Builder options() {
+        return BannerOptions.builder();
+    }
 }

@@ -18,7 +18,7 @@ public record BannerOptions(
         private String initials = "MP", teamZh = "妙控动力", teamEn = "MagicPowered";
         private String seriesZh = "插件系列", seriesEn = "PluginSeries";
         private String pluginZh = "插件全名", pluginEn = "PluginName", version = "v1.0.0.0-SNAPSHOT";
-        private String site = "https://magicpowered.cn";
+        private String site = "https://jling.me";
         private java.util.List<String> developers = java.util.List.of("JLING");
 
         public Builder initials(String v) {
