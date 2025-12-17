@@ -9,9 +9,9 @@ import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
 /**
- * ASCII 铭牌打印入口。
+ * ASCII 铭牌打印入口
  *
- * <p>通过 SPI 发现 {@link BannerFontProvider} 并渲染 ASCII 铭牌。</p>
+ * <p>通过 SPI 发现 {@link BannerFontProvider} 并渲染 ASCII 铭牌</p>
  */
 public final class LinBanner {
     private static volatile AsciiFont CACHED;

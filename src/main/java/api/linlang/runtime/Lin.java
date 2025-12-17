@@ -27,16 +27,33 @@ public final class Lin {
      */
     private static Linlang maybeCreateFacade(Linlang lin, Object platformContext) {
         if (lin == null || platformContext == null) return lin;
-        String[] names = new String[]{"create"};
-        for (String name : names) {
+
+        Class<?> implClass = lin.getClass();
+        Class<?> ctxClass = platformContext.getClass();
+
+        // 优先尝试精确签名 create(Object) 以兼容旧实现
+        try {
+            java.lang.reflect.Method m = implClass.getMethod("createFacade", Object.class);
+            Object out = m.invoke(lin, platformContext);
+            if (out instanceof Linlang ll) return ll;
+        } catch (NoSuchMethodException ignored) {
+            // fall through to generic search
+        } catch (Throwable ignored) {
+        }
+
+        // 回退：查找任何名为 create 的单参数方法，只要参数类型是 platformContext 的父类/接口即可
+        for (java.lang.reflect.Method m : implClass.getMethods()) {
+            if (!m.getName().equals("create")) continue;
+            Class<?>[] params = m.getParameterTypes();
+            if (params.length != 1) continue;
+            if (!params[0].isAssignableFrom(ctxClass)) continue;
             try {
-                java.lang.reflect.Method m = lin.getClass().getMethod(name, Object.class);
                 Object out = m.invoke(lin, platformContext);
-                if (out instanceof Linlang) return (Linlang) out;
-            } catch (NoSuchMethodException ignored) {
+                if (out instanceof Linlang ll) return ll;
             } catch (Throwable ignored) {
             }
         }
+
         return lin;
     }
 

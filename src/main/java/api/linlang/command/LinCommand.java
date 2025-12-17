@@ -2,8 +2,7 @@ package api.linlang.command;
 
 /**
  * 琳琅命令服务。
- *
- * */
+ */
 import java.util.*;
 
 public interface LinCommand {
