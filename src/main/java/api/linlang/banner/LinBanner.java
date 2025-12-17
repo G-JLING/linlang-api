@@ -19,8 +19,11 @@ public final class LinBanner {
     private LinBanner() {}
 
     /** 打印到 LinLog（INFO） */
-    public static void printWithLogs(BannerOptions opt) {
+    public static void printWithPrefix(BannerOptions opt) {
         print(LinLog::info, opt);
+    }
+    public static void print(BannerOptions opt) {
+        print(LinLog::banr, opt);
     }
 
     /** 打印到自定义输出 */
@@ -35,18 +38,32 @@ public final class LinBanner {
 
     /** 通过 SPI 拿字体；若无可用字体则返回 null */
     private static AsciiFont resolveFont() {
-        AsciiFont f = CACHED;
-        if (f != null) return f;
+        AsciiFont cached = CACHED;
+        if (cached != null) return cached;
 
-        for (BannerFontProvider p : ServiceLoader.load(BannerFontProvider.class)) {
+        ClassLoader cl = LinBanner.class.getClassLoader();
+        ServiceLoader<BannerFontProvider> loader =
+                ServiceLoader.load(BannerFontProvider.class, cl);
+
+        int providers = 0;
+        for (BannerFontProvider p : loader) {
+            providers++;
             try {
-                f = p.font();
+                AsciiFont f = p.font();
                 if (f != null) {
                     CACHED = f;
                     return f;
                 }
-            } catch (Throwable ignored) {
+            } catch (Throwable t) {
+                LinLog.warn(
+                        "[linbanner] BannerFontProvider {} failed to supply font: {}",
+                        p.getClass().getName(), t.toString()
+                );
             }
+        }
+
+        if (providers == 0) {
+            LinLog.warn("[linbanner] no BannerFontProvider discovered via ServiceLoader; skipping banner print.");
         }
         return null;
     }

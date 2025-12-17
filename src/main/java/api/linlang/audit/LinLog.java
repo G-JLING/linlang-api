@@ -170,6 +170,10 @@ public final class LinLog {
         P.log("INFO", m, kv);
     }
 
+    public static void banr(String s) {
+        P.log("BANR", s);
+    }
+
     /** 输出 WARN 级别日志（无 owner，上下文视为运行时全局）。
      * @hidden
      */
