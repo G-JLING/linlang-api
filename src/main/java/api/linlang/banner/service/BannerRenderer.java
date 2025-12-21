@@ -24,11 +24,11 @@ public final class BannerRenderer {
         String devLine = String.join(", ", opt.developers());
 
         List<String> info = new ArrayList<>();
-        info.add(opt.teamZh() + " " + opt.teamEn());
-        info.add(opt.seriesZh() + " " + opt.seriesEn());
-        info.add(opt.pluginZh() + " " + opt.pluginEn() + " " + opt.version());
-        info.add("开发者: " + devLine + " | 由 琳琅(Linlang) 构建");
-        info.add(opt.site());
+        info.add((opt.pluginZh() == null ? " " : opt.pluginZh()) + " " + opt.pluginEn() + " " + opt.version());
+        info.add("By: " + devLine);
+        info.add(opt.site() == null ? " " : opt.site());
+        info.add(" ");
+        info.add("MagicPowered | Linlang | https://jling.me");
 
         int rows = Math.max(art.size(), info.size());
         for (int i = 0; i < rows; i++) {

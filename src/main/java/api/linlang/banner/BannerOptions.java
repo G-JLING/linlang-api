@@ -5,8 +5,6 @@ import java.util.List;
 /** @hidden */
 public record BannerOptions(
         String initials,      // 牌头 ASCII 字母，如 "MP"
-        String teamZh, String teamEn,
-        String seriesZh, String seriesEn,
         String pluginZh, String pluginEn, String version,
         List<String> developers, String site
 ) {
@@ -15,26 +13,13 @@ public record BannerOptions(
     }
 
     public static final class Builder {
-        private String initials = "MP", teamZh = "妙控动力", teamEn = "MagicPowered";
-        private String seriesZh = "插件系列", seriesEn = "PluginSeries";
-        private String pluginZh = "插件全名", pluginEn = "PluginName", version = "v1.0.0.0-SNAPSHOT";
+        private String initials = "MP";
+        private String pluginZh = null, pluginEn = "PluginName", version = "v1.0.0.0-SNAPSHOT";
         private String site = "https://jling.me";
         private java.util.List<String> developers = java.util.List.of("JLING");
 
         public Builder initials(String v) {
             initials = v;
-            return this;
-        }
-
-        public Builder team(String zh, String en) {
-            teamZh = zh;
-            teamEn = en;
-            return this;
-        }
-
-        public Builder series(String zh, String en) {
-            seriesZh = zh;
-            seriesEn = en;
             return this;
         }
 
@@ -56,7 +41,7 @@ public record BannerOptions(
         }
 
         public BannerOptions build() {
-            return new BannerOptions(initials, teamZh, teamEn, seriesZh, seriesEn, pluginZh, pluginEn, version, developers, site);
+            return new BannerOptions(initials, pluginZh, pluginEn, version, developers, site);
         }
     }
 }
