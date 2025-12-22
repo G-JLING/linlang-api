@@ -61,8 +61,9 @@ public interface LangService {
 
     /**
      * 重新读取磁盘上所有绑定的文件并应用
+     * <p>更新会被应用于最后一次赋值 {@link #bind(Class, String, List)} 的字段。<code>List</code> 中的所有文件均被更新，语言代码保持不变</p>
      *
-     * <p>若文件被更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
+     * <p>若文件代码被更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
      */
     default void reload() {};
 

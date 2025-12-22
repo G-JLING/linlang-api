@@ -1,5 +1,7 @@
 package api.linlang.file.file;
 
+import java.util.List;
+
 /**
  * 配置文件服务
  */
@@ -35,8 +37,9 @@ public interface ConfigService {
 
     /**
      * 重新读取磁盘上所有绑定的文件并应用
+     * <p>更新会被应用于最后一次赋值 {@link #bind(Class)} 的字段</p>
      *
-     * <p>若文件被更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
+     * <p>若文件被代码更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
      */
     default void reload() {};
 }
