@@ -18,7 +18,7 @@ public final class LinOptions {
      *
      * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
      */
-    public LinOptions initialLocale(String v) {
+    public LinOptions totalLocale(String v) {
         this.initialLocale = v;
         return this;
     }
@@ -40,11 +40,11 @@ public final class LinOptions {
      *
      * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
      *
-     * <p>与 {@link #dynamicFixedPrefix(Function)} 选其一</p>
+     * <p>与 {@link #dynamicTotalPrefix(Function)} 选其一</p>
      *
      * @param prefix 前缀文本
      */
-    public LinOptions fixedPrefix(String prefix) {
+    public LinOptions totalPrefix(String prefix) {
         this.fixedPrefix = prefix;
         this.prefixProvider = null;
         return this;
@@ -55,11 +55,11 @@ public final class LinOptions {
      *
      * 设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
      *
-     * <p>与 {@link #fixedPrefix(String)} 选其一</p>
+     * <p>与 {@link #totalPrefix(String)} 选其一</p>
      *
      * @param func 函数式接口
      */
-    public LinOptions dynamicFixedPrefix(Function<Object, String> func) {
+    public LinOptions dynamicTotalPrefix(Function<Object, String> func) {
         this.prefixProvider = func;
         this.fixedPrefix = null;
         return this;

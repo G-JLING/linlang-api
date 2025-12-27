@@ -1,6 +1,5 @@
 package api.linlang.runtime;
 
-import api.linlang.audit.LinLog;
 import api.linlang.command.LinCommand;
 import api.linlang.file.LinFile;
 import api.linlang.messenger.LinMessenger;
@@ -60,7 +59,8 @@ public interface Linlang {
 
     /**
      * 设置琳琅服务的个性化设置
-     * <p>使用后，需要调用 {@link #reload()} 使设置生效</p>
+     *
+     * <p>例如琳琅服务消息前缀等。调用 {@link Settings#apply()} 将热应用修改</p>
      */
     default Settings settings() {
         if (!(this instanceof Configurable c))
@@ -69,9 +69,9 @@ public interface Linlang {
     }
 
     /**
-     * 设置需要硬重载才能生效的运行参数
+     * 更改琳琅服务的系统参数
      *
-     * <p>例如平台上下文、启动语言等。调用 {@link Parameters#apply()} 后将触发一次重启。</p>
+     * <p>例如平台上下文、启动语言等。调用 {@link Parameters#apply()} 后将触发一次重启</p>
      */
     default Parameters parameters() {
         if (!(this instanceof Parametric p))
@@ -112,13 +112,15 @@ public interface Linlang {
         /**
          * 设置琳琅内建提示消息的前缀
          *
-         * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
+         * <b>琳琅服务的全局参数：前缀名</b>
          *
-         * <p>与 {@link #dynamicFixedPrefix(Function)} 选其一</p>
+         * <p>设置琳琅服务（如命令）消息的前缀。默认情况下，前缀为软件 Name</p>
+         *
+         * <p>与 {@link #dynamicTotalPrefix(Function)} 选其一</p>
          *
          * @param prefix 前缀文本
          */
-        public Settings fixedPrefix(String prefix) {
+        public Settings totalPrefix(String prefix) {
             c.withCommandPrefix(prefix);
             return this;
         }
@@ -126,13 +128,15 @@ public interface Linlang {
         /**
          * 设置琳琅内建提示消息的前缀
          *
-         * <p>设置琳琅内建提示消息的前缀，可便于消息识别。默认情况下，无前缀或提示为 [linlang]</p>
+         * <b>琳琅服务的全局参数：前缀名</b>
          *
-         * <p>与 {@link #fixedPrefix(String)} 互斥</p>
+         * <p>设置琳琅服务（如命令）消息的前缀。默认情况下，前缀为软件 Name</p>
+         *
+         * <p>与 {@link #totalPrefix(String)} 互斥</p>
          *
          * @param func 函数式接口
          */
-        public Settings dynamicFixedPrefix(Function<Object, String> func) {
+        public Settings dynamicTotalPrefix(Function<Object, String> func) {
             c.withCommandPrefixProvider(func);
             return this;
         }
@@ -180,9 +184,11 @@ public interface Linlang {
         /**
          * 设置琳琅的启动语言
          *
+         * <b>琳琅服务的全局参数：语言</b>
+         *
          * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
          */
-        public Parameters initialLocale(String v) {
+        public Parameters totalLocale(String v) {
             p.withInitialLanguage(v);
             return this;
         }
