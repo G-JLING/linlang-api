@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * 平台无关的消息发送门面。
+ * 消息发送者
  * <p>约定：占位符语法为 {@code {key}}；颜色由各平台适配实现（如 & 转 §，或 HEX）。</p>
  * <p>目标对象（玩家/控制台/发送者）以 {@code Object recipient} 传入，由具体适配器判定类型。</p>
  */
