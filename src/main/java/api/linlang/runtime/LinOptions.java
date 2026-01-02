@@ -71,9 +71,9 @@ public final class LinOptions {
      * @hidden
      */
     public void applyTo(Linlang.Configurable lin) {
-        if (usePluginLogger != null) lin.withPluginLogger(usePluginLogger);
-        if (prefixProvider  != null) lin.withCommandPrefixProvider(prefixProvider);
-        else if (fixedPrefix != null) lin.withCommandPrefix(fixedPrefix);
+        if (usePluginLogger != null) lin.usingPluginLogger(usePluginLogger);
+        if (prefixProvider  != null) lin.totalPrefixProvider(prefixProvider);
+        else if (fixedPrefix != null) lin.totalPrefix(fixedPrefix);
     }
 
     /**

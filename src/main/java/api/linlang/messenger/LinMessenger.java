@@ -5,18 +5,8 @@ import java.util.function.Supplier;
 
 /**
  * 消息发送者
- * <p>约定：占位符语法为 {@code {key}}；颜色由各平台适配实现（如 & 转 §，或 HEX）。</p>
- * <p>目标对象（玩家/控制台/发送者）以 {@code Object recipient} 传入，由具体适配器判定类型。</p>
  */
 public interface LinMessenger {
-
-    /* 配置 */
-
-    /** 设置固定前缀（仅用于聊天/控制台；Title/ActionBar 不附带前缀）。 */
-    LinMessenger withPrefix(String prefix);
-
-    /** 设置动态前缀提供者（运行时计算；仅用于聊天/控制台）。 */
-    LinMessenger withPrefixProvider(Supplier<String> supplier);
 
     /* 文本（模板） */
 

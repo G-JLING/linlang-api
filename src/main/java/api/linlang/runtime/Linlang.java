@@ -104,8 +104,8 @@ public interface Linlang {
          *
          * @param v 布尔值
          */
-        public Settings pluginLogger(boolean v) {
-            c.withPluginLogger(v);
+        public Settings usingPluginLogger(boolean v) {
+            c.usingPluginLogger(v);
             return this;
         }
 
@@ -121,7 +121,7 @@ public interface Linlang {
          * @param prefix 前缀文本
          */
         public Settings totalPrefix(String prefix) {
-            c.withCommandPrefix(prefix);
+            c.totalPrefix(prefix);
             return this;
         }
 
@@ -137,7 +137,7 @@ public interface Linlang {
          * @param func 函数式接口
          */
         public Settings dynamicTotalPrefix(Function<Object, String> func) {
-            c.withCommandPrefixProvider(func);
+            c.totalPrefixProvider(func);
             return this;
         }
 
@@ -210,11 +210,11 @@ public interface Linlang {
      */
     interface Configurable {
 
-        Configurable withCommandPrefix(String prefix);
+        Configurable totalPrefix(String prefix);
 
-        Configurable withCommandPrefixProvider(Function<Object, String> provider);
+        Configurable totalPrefixProvider(Function<Object, String> provider);
 
-        Configurable withPluginLogger(boolean usePluginLogger);
+        Configurable usingPluginLogger(boolean usePluginLogger);
 
         void reload();
     }
