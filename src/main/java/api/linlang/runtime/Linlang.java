@@ -80,7 +80,7 @@ public interface Linlang {
     }
 
     /**
-     * 琳琅服务的个性化设置项
+     * 琳琅服务的「个性化」设置项
      *
      * <p>您可以不进行个性化设置，不会影响琳琅工作。但可能会使得一些服务的表现不像您想得那样</p>
      */
@@ -114,7 +114,7 @@ public interface Linlang {
          *
          * <b>琳琅服务的全局参数：前缀名</b>
          *
-         * <p>设置琳琅服务（如命令）消息的前缀。默认情况下，前缀为软件 Name</p>
+         * <p>设置琳琅服务（如命令）消息的前缀。默认情况下，前缀为软件注册名</p>
          *
          * <p>与 {@link #dynamicTotalPrefix(Function)} 选其一</p>
          *
@@ -130,9 +130,9 @@ public interface Linlang {
          *
          * <b>琳琅服务的全局参数：前缀名</b>
          *
-         * <p>设置琳琅服务（如命令）消息的前缀。默认情况下，前缀为软件 Name</p>
+         * <p>设置琳琅服务（如命令）消息的前缀。默认情况下，前缀为软件注册名</p>
          *
-         * <p>与 {@link #totalPrefix(String)} 互斥</p>
+         * <p>与 {@link #totalPrefix(String)} 选其一</p>
          *
          * @param func 函数式接口
          */
@@ -142,10 +142,9 @@ public interface Linlang {
         }
 
         /**
-         * 应用设置
+         * 应用个性化设置
          *
-         * <p>在调用 {@link #settings()} 后需调用此方法以使设置生效，只会应用通过 {@link Settings} 修改的软配置。</p>
-         * <p>与 {@link #reload()} 任选其一，此方法主要用于提供链式调用体验。</p>
+         * <p>调用后将触发一次重载，和 {@link Linlang#reload()} 功能一致，使其链式调用的方式。</p>
          */
         public Linlang apply() {
             c.reload();
@@ -154,9 +153,9 @@ public interface Linlang {
     }
 
     /**
-     * 琳琅服务的运行参数设置项（需要重启琳琅实例的设置）
+     * 琳琅服务的「运行参数」设置项（需要重启琳琅）
      *
-     * <p>这些设置通常影响平台上下文或启动语言，会导致整个琳琅服务实例被重新构建。</p>
+     * <p>这些设置的应用会导致整个琳琅服务实例被重新构建，一些正在进行的任务可能被中断</p>
      */
     final class Parameters {
 
@@ -189,14 +188,14 @@ public interface Linlang {
          * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
          */
         public Parameters totalLocale(String v) {
-            p.withInitialLanguage(v);
+            p.totalLocale(v);
             return this;
         }
 
         /**
          * 应用运行参数设置
          *
-         * <p>调用后将触发一次硬重载，重新构建整个琳琅服务实例。</p>
+         * <p>调用后将触发一次重启，和 {@link Linlang#restart()} 功能一致，使其链式调用的方式。</p>
          */
         public Linlang apply() {
             p.restart();
@@ -226,16 +225,13 @@ public interface Linlang {
 
         Parametric withPlatformContext(Object platformContext);
 
-        Parametric withInitialLanguage(String locale);
+        Parametric totalLocale(String locale);
 
         void restart();
     }
 
     /**
-     * 重新载入琳琅服务的软配置
-     *
-     * <p>该方法会应用通过 {@link #settings()} 修改的选项，例如日志方式或命令前缀。</p>
-     * <p>实现应尽量避免销毁整个实例，而是刷新内部状态；如需完全重启，请使用 {@link #parameters()} 提供的运行参数接口。</p>
+     * 重新载入琳琅服务
      */
     default void reload() {
         if (this instanceof Configurable c) c.reload();
@@ -244,8 +240,7 @@ public interface Linlang {
     /**
      * 重启琳琅服务
      *
-     * <p>该方法用于应用通过 {@link #parameters()} 修改的运行参数，通常会销毁并重建当前琳琅服务实例。</p>
-     * <p>请谨慎调用，可能会导致正在进行中的服务被中断。</p>
+     * <p>这将导致整个琳琅服务被重新构建，一些正在进行中的人物可能被中断。</p>
      */
     default void restart() {
         if (this instanceof Parametric p) p.restart();

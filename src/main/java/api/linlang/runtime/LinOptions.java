@@ -3,15 +3,17 @@ package api.linlang.runtime;
 import java.util.function.Function;
 
 /**
- * 琳琅服务的个性化设置类，仅适用于 {@link Lin#configure(Object, LinOptions)}
+ * 琳琅服务的设置类
  *
- * <p>您可以不进行个性化设置，不会影响琳琅工作。但可能会使得一些服务的表现不像您想得那样。</p>
+ * <p>仅适用于 {@link Lin#configure(Object, LinOptions)} 的方式设置琳琅</p>
+ *
+ * <p>您可以不进行个性化设置，不会影响琳琅工作。但可能会使得一些服务的表现不像您想得那样</p>
  */
 public final class LinOptions {
-    public String initialLocale;
+    public String totalLocale;
     public Boolean usePluginLogger;
-    public String fixedPrefix;
-    public Function<Object, String> prefixProvider;
+    public String totalPrefix;
+    public Function<Object, String> totalPrefixProvider;
 
     /**
      * 设置琳琅的启动语言（运行参数）
@@ -19,7 +21,7 @@ public final class LinOptions {
      * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
      */
     public LinOptions totalLocale(String v) {
-        this.initialLocale = v;
+        this.totalLocale = v;
         return this;
     }
 
@@ -45,8 +47,8 @@ public final class LinOptions {
      * @param prefix 前缀文本
      */
     public LinOptions totalPrefix(String prefix) {
-        this.fixedPrefix = prefix;
-        this.prefixProvider = null;
+        this.totalPrefix = prefix;
+        this.totalPrefixProvider = null;
         return this;
     }
 
@@ -60,8 +62,8 @@ public final class LinOptions {
      * @param func 函数式接口
      */
     public LinOptions dynamicTotalPrefix(Function<Object, String> func) {
-        this.prefixProvider = func;
-        this.fixedPrefix = null;
+        this.totalPrefixProvider = func;
+        this.totalPrefix = null;
         return this;
     }
 
@@ -72,8 +74,8 @@ public final class LinOptions {
      */
     public void applyTo(Linlang.Configurable lin) {
         if (usePluginLogger != null) lin.usingPluginLogger(usePluginLogger);
-        if (prefixProvider  != null) lin.totalPrefixProvider(prefixProvider);
-        else if (fixedPrefix != null) lin.totalPrefix(fixedPrefix);
+        if (totalPrefixProvider  != null) lin.totalPrefixProvider(totalPrefixProvider);
+        else if (totalPrefix != null) lin.totalPrefix(totalPrefix);
     }
 
     /**
@@ -82,6 +84,6 @@ public final class LinOptions {
      * @hidden
      */
     public void applyParameters(Linlang.Parametric lin) {
-        if (initialLocale != null) lin.withInitialLanguage(initialLocale);
+        if (totalLocale != null) lin.totalLocale(totalLocale);
     }
 }
