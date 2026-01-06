@@ -71,7 +71,7 @@ public interface Linlang {
     /**
      * 更改琳琅服务的系统参数
      *
-     * <p>例如平台上下文、启动语言等。调用 {@link Parameters#apply()} 后将触发一次重启</p>
+     * <p>例如平台上下文、启动语言等。调用 {@link Parameters#apply()} 后将触发一次重建</p>
      */
     default Parameters parameters() {
         if (!(this instanceof Parametric p))
@@ -153,7 +153,7 @@ public interface Linlang {
     }
 
     /**
-     * 琳琅服务的「运行参数」设置项（需要重启琳琅）
+     * 琳琅服务的「运行参数」设置项（需要重建琳琅）
      *
      * <p>这些设置的应用会导致整个琳琅服务实例被重新构建，一些正在进行的任务可能被中断</p>
      */
@@ -195,7 +195,7 @@ public interface Linlang {
         /**
          * 应用运行参数设置
          *
-         * <p>调用后将触发一次重启，和 {@link Linlang#restart()} 功能一致，使其链式调用的方式。</p>
+         * <p>调用后将触发一次重建，和 {@link Linlang#restart()} 功能一致，使其链式调用的方式。</p>
          */
         public Linlang apply() {
             p.restart();
@@ -238,9 +238,9 @@ public interface Linlang {
     }
 
     /**
-     * 重启琳琅服务
+     * 重建琳琅服务
      *
-     * <p>这将导致整个琳琅服务被重新构建，一些正在进行中的人物可能被中断。</p>
+     * <p>这将导致整个琳琅服务被重新构建，一些正在进行中的任务可能被中断。</p>
      */
     default void restart() {
         if (this instanceof Parametric p) p.restart();
