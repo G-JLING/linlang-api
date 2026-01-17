@@ -2,7 +2,9 @@ package api.linlang.file.file.annotations;
 
 import api.linlang.file.file.FileType;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.TYPE;
@@ -18,29 +20,21 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * <p>在 <a href="https://jling.me/p/linlang/file/file/语言文件" target=_blank>语言文件</a> 页面中，您可以了解什么是语言提供者，这是一个琳琅专有名词</p>
  */
-@Retention(RUNTIME) @Target(TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface LangPack {
-
-    /**
-     * 语言代码，遵循 language_REGION 规则，例如 zh_CN
-     */
-    String locale();
-
-    /**
-     * 文件名（不含扩展名），默认为语言代码
-     */
-    String name() default "";
-
-    /**
-     * 配置文件相对路径（相对于插件根目录）
-     *
-     * <p>默认时，在插件目录的 lang 文件夹</p>
-     */
+    /** 相对插件数据目录的路径，例如 "lang" 或 "i18n/messages" */
     String path() default "lang";
 
-    /**
-     * 配置文件格式。
-     * 默认为 {@link FileType#YAML}。
-     */
+    /** 文件格式：YAML/JSON */
     FileType format() default FileType.YAML;
+
+    /** 默认语言文件名（不存在时生成它） */
+    String defaultLocale() default "en_GB";
+
+    /** 是否在 bind 时自动生成内建语言文件（缺失补齐也算生成行为） */
+    boolean emit() default true;
+
+    /** 归一化策略：是否把 enGB/en-GB 归一化到 en_GB */
+    boolean normalizeLocale() default true;
 }

@@ -8,14 +8,11 @@ import java.util.function.Supplier;
  */
 public interface LinMessenger {
 
-    /* 文本（模板） */
 
     void sendText(Object recipient, String template, Object... kv);
-    void sendText(Object recipient, String template, Map<String, ?> vars);
-
-    /* 文本（语言键） */
-
     void sendKey(Object recipient, String key, Object... kv);
+
+    void sendText(Object recipient, String template, Map<String, ?> vars);
     void sendKey(Object recipient, String key, Map<String, ?> vars);
 
     /* Title（模板 / 语言键） */
@@ -23,11 +20,11 @@ public interface LinMessenger {
     void sendTitleText(Object recipient, String title, String subtitle,
                        int fadeIn, int stay, int fadeOut, Object... kv);
 
-    void sendTitleText(Object recipient, String title, String subtitle,
-                       int fadeIn, int stay, int fadeOut, Map<String, ?> vars);
-
     void sendTitleKey(Object recipient, String titleKey, String subKey,
                       int fadeIn, int stay, int fadeOut, Object... kv);
+
+    void sendTitleText(Object recipient, String title, String subtitle,
+                       int fadeIn, int stay, int fadeOut, Map<String, ?> vars);
 
     void sendTitleKey(Object recipient, String titleKey, String subKey,
                       int fadeIn, int stay, int fadeOut, Map<String, ?> vars);
@@ -35,12 +32,10 @@ public interface LinMessenger {
     /* ActionBar（模板 / 语言键） */
 
     void sendActionBarText(Object recipient, String template, Object... kv);
-    void sendActionBarText(Object recipient, String template, Map<String, ?> vars);
-
     void sendActionBarKey(Object recipient, String key, Object... kv);
+    void sendActionBarText(Object recipient, String template, Map<String, ?> vars);
     void sendActionBarKey(Object recipient, String key, Map<String, ?> vars);
 
-    /* 工具：可变参数转 Map（与适配实现保持一致的便捷方法） */
     final class Vars {
         public static Map<String, Object> of(Object... kv) {
             if (kv == null || kv.length == 0) return java.util.Map.of();
