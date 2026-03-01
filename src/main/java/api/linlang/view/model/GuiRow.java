@@ -1,9 +1,9 @@
-package api.linlang.interact.model;
+package api.linlang.view.model;
 
 import java.util.Map;
 
 /**
- * 动态区的一行/一个元素。
+ * 界面动态区的行类型
  *
  * <p>包含：渲染用 widget + 行绑定数据（RowRef）。点击时能取到 row.data。</p>
  */

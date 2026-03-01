@@ -1,8 +1,8 @@
-package api.linlang.interact.spi;
+package api.linlang.view.spi;
 
 
-import api.linlang.interact.context.GuiContext;
-import api.linlang.interact.model.GuiRow;
+import api.linlang.view.context.GuiContext;
+import api.linlang.view.model.GuiRow;
 
 import java.util.List;
 

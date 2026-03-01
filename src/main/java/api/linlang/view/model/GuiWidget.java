@@ -1,13 +1,11 @@
-package api.linlang.interact.model;
+package api.linlang.view.model;
 
-import api.linlang.interact.model.dto.GuiIcon;
+import api.linlang.view.model.dto.GuiIcon;
 
 import java.util.Map;
 
 /**
- * 一个可渲染控件（静态区或动态区都可用）。
- *
- * <p>API 不规定平台物品类型；icon 由 adapter/resolver 负责解析。</p>
+ * 一个可选染的界面组建类型
  */
 public interface GuiWidget {
 

@@ -1,4 +1,4 @@
-package api.linlang.interact.model;
+package api.linlang.view.model;
 
 /** 变体匹配策略。 */
 public enum VariantPolicy {

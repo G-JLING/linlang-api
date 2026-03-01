@@ -1,9 +1,9 @@
-package api.linlang.interact;
+package api.linlang.view;
 
-import api.linlang.interact.session.GuiSession;
-import api.linlang.interact.spi.GuiHook;
-import api.linlang.interact.spi.GuiSource;
-import api.linlang.interact.state.GuiState;
+import api.linlang.view.session.GuiSession;
+import api.linlang.view.spi.GuiHook;
+import api.linlang.view.spi.GuiSource;
+import api.linlang.view.state.GuiState;
 
 import java.util.Map;
 import java.util.function.Consumer;

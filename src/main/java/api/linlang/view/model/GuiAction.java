@@ -1,9 +1,9 @@
-package api.linlang.interact.model;
+package api.linlang.view.model;
 
 import java.util.Map;
 
 /**
- * 点击动作（平台无关）。实际执行由 core runtime 解释。
+ * 界面中元素按钮的点击后动作类型
  */
 public interface GuiAction {
 

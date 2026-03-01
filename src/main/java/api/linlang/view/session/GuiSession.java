@@ -1,11 +1,15 @@
-package api.linlang.interact.session;
+package api.linlang.view.session;
 
-import api.linlang.interact.state.GuiState;
+import api.linlang.view.state.GuiState;
 
 import java.util.Optional;
 
 /**
- * 一次界面会话（每个 viewer 独立）。
+ * 界面会话类型
+ *
+ * 一次基本界面会话
+ * 一个界面一定拥有一个静态区，可能拥有一个或多个动态区
+ * 一个会话拥有一个观众（平台实现的玩家类型）
  */
 public interface GuiSession {
 

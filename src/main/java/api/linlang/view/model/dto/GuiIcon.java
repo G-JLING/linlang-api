@@ -1,10 +1,12 @@
-package api.linlang.interact.model.dto;
+package api.linlang.view.model.dto;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * 图标描述（平台无关），由 adapter/resolver 解析为具体物品。
+ * 界面的通用元素图标类型
+ *
+ * 数据类型
  */
 public record GuiIcon(
         String kind,                 // "vanilla" | "itemsadder" | "head" | "custom"

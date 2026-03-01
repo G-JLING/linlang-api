@@ -1,6 +1,6 @@
-package api.linlang.interact.spi;
+package api.linlang.view.spi;
 
-import api.linlang.interact.context.GuiContext;
+import api.linlang.view.context.GuiContext;
 
 /**
  * 业务 Hook：用于处理点击、打开、关闭等事件。

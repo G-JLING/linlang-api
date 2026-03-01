@@ -1,9 +1,11 @@
-package api.linlang.interact.state;
+package api.linlang.view.state;
 
 import java.util.Map;
 
 /**
- * 会话状态：动态区分页/筛选/临时输入等都放这里。
+ * 会话状态
+ *
+ * 动态区分页、筛选、临时输入等
  */
 public interface GuiState extends Map<String, Object> {
 

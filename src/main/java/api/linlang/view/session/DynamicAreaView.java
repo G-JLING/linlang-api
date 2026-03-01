@@ -1,12 +1,14 @@
-package api.linlang.interact.session;
+package api.linlang.view.session;
 
-import api.linlang.interact.model.GuiRow;
+import api.linlang.view.model.GuiRow;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * 动态区：一组按顺序排列的可填充槽位（slot stack）。
+ * 动态区类型
+ *
+ * 动态区是一组按顺序排列的可填充空位
  */
 public interface DynamicAreaView {
 

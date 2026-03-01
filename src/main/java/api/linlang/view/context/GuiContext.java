@@ -1,8 +1,8 @@
-package api.linlang.interact.context;
+package api.linlang.view.context;
 
-import api.linlang.interact.model.GuiRow;
-import api.linlang.interact.session.GuiSession;
-import api.linlang.interact.state.GuiState;
+import api.linlang.view.model.GuiRow;
+import api.linlang.view.session.GuiSession;
+import api.linlang.view.state.GuiState;
 
 import java.util.Map;
 

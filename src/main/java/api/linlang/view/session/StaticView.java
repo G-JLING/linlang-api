@@ -1,12 +1,14 @@
-package api.linlang.interact.session;
+package api.linlang.view.session;
 
-import api.linlang.interact.model.GuiWidget;
+import api.linlang.view.model.GuiWidget;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
- * 静态区：由配置文件定义并拥有稳定 UID 的控件集合。
+ * 静态区类型
+ *
+ * 静态区是由配置文件定义并拥有稳定 UID 的控件集合
  */
 public interface StaticView {
 

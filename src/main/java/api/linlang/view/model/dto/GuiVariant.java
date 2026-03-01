@@ -1,9 +1,11 @@
-package api.linlang.interact.model.dto;
+package api.linlang.view.model.dto;
 
-import api.linlang.interact.model.GuiAction;
+import api.linlang.view.model.GuiAction;
 
 /**
- * 模板变体（variant）。
+ * 界面的动态区元素按钮变体类型
+ *
+ * 数据类型
  *
  * <p>用于根据条件选择不同的 icon/action/enabled/visible 等属性。</p>
  * <p>when 是简易表达式字符串，例如：
