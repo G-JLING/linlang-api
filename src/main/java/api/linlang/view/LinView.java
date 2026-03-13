@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * - Session：每次打开的运行态实例（按玩家隔离）
  * </p>
  */
-public interface LinInteract {
+public interface LinView {
 
     /** 打开一个视图（为指定 viewer 创建或复用 session）。 */
     GuiSession open(Object viewer, String viewId);
@@ -37,10 +37,10 @@ public interface LinInteract {
     void reload(String viewId);
 
     /** 注册 hook（由按钮动作调用，执行业务逻辑）。 */
-    LinInteract hook(String hookId, GuiHook hook);
+    LinView hook(String hookId, GuiHook hook);
 
     /** 注册数据源（用于动态区填充）。 */
-    LinInteract source(String sourceId, GuiSource source);
+    LinView source(String sourceId, GuiSource source);
 
     /** 便捷：打开前设置 state 的常见入口。 */
     default GuiSession open(Object viewer, String viewId, Map<String, Object> initState) {

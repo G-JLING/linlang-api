@@ -2,8 +2,8 @@ package api.linlang.runtime;
 
 import api.linlang.command.LinCommand;
 import api.linlang.file.LinFile;
-import api.linlang.view.LinInteract;
 import api.linlang.messenger.LinMessenger;
+import api.linlang.view.LinView;
 
 import java.util.function.Function;
 
@@ -52,7 +52,7 @@ public interface Linlang {
      *
      * @return 可用的 LinInteract 实例
      */
-    LinInteract linInteract();
+    LinView linView();
 
     /*
       ########################################  服务门面  ########################################
