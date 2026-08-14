@@ -1,6 +1,8 @@
 package api.linlang.file.file;
 
-import java.util.List;
+import api.linlang.file.file.migrator.Migrator;
+
+import java.util.Collection;
 
 /**
  * 配置文件服务
@@ -25,6 +27,32 @@ public interface ConfigService {
     <T> T bind(Class<T> config);
 
     /**
+     * 注册一个配置迁移器。
+     *
+     * <p>迁移器应在绑定对应配置类之前注册。迁移过程必须能从
+     * {@link Migrator#from()} 连续推进到配置类声明的目标版本。</p>
+     *
+     * @param migrator 配置迁移器
+     * @return 当前配置服务
+     */
+    ConfigService registerMigrator(Migrator migrator);
+
+    /**
+     * 批量注册配置迁移器。
+     *
+     * @param migrators 配置迁移器集合
+     * @return 当前配置服务
+     */
+    default ConfigService registerMigrators(Collection<? extends Migrator> migrators) {
+        if (migrators != null) {
+            for (Migrator migrator : migrators) {
+                registerMigrator(migrator);
+            }
+        }
+        return this;
+    }
+
+    /**
      * @hidden
      */
     <T> void save(Class<T> type, T config);
@@ -41,5 +69,5 @@ public interface ConfigService {
      *
      * <p>若文件被代码更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
      */
-    default void reload() {};
+    default void reload() {}
 }

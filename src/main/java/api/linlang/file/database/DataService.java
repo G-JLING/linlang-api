@@ -2,6 +2,8 @@ package api.linlang.file.database;
 
 import api.linlang.file.database.repo.Repository;
 
+import java.util.Objects;
+
 /**
  * Database service facade used by plugins and higher-level modules.
  * <p>
@@ -15,7 +17,7 @@ import api.linlang.file.database.repo.Repository;
  *   <li>{@link #init(DbType, DbConfig)} to open connections</li>
  *   <li>Obtain repositories via {@link #repo(Class)}</li>
  *   <li>Optionally {@link #migrate()} schemas</li>
- *   <li>Call {@link #flushAll()} on shutdown</li>
+ *   <li>Call {@link #close()} on shutdown</li>
  * </ol>
  */
 public interface DataService extends AutoCloseable {
@@ -68,7 +70,12 @@ public interface DataService extends AutoCloseable {
         private final int poolSize;
 
         public DbConfig(String url, String user, String pass, int poolSize){
-            this.url = url; this.user = user; this.pass = pass; this.poolSize = poolSize;
+            this.url = Objects.requireNonNull(url, "url");
+            if (url.isBlank()) throw new IllegalArgumentException("url must not be blank");
+            if (poolSize <= 0) throw new IllegalArgumentException("poolSize must be positive");
+            this.user = user;
+            this.pass = pass;
+            this.poolSize = poolSize;
         }
 
         public String url(){ return url; }

@@ -1,5 +1,7 @@
 package api.linlang.view.model;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -25,7 +27,7 @@ public interface GuiRow {
 
         Simple(GuiWidget widget, Map<String, Object> data) {
             this.widget = widget;
-            this.data = data == null ? Map.of() : data;
+            this.data = data == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(data));
         }
 
         @Override public GuiWidget widget() { return widget; }

@@ -32,6 +32,24 @@ public interface GuiAction {
         return new Simple("close", Map.of(), "");
     }
 
+    /**
+     * 创建会话状态更新动作。
+     *
+     * <p>传入的字段会写入当前 {@code GuiState}。值为 {@code null} 时移除对应字段。</p>
+     */
+    static GuiAction state(Map<String, Object> patch, String refresh) {
+        Map<String, Object> args = new java.util.LinkedHashMap<>();
+        if (patch != null) args.putAll(patch);
+        return new Simple("state", java.util.Collections.unmodifiableMap(args), refresh);
+    }
+
+    /**
+     * 创建玩家命令动作。
+     */
+    static GuiAction command(String command) {
+        return new Simple("command", Map.of("command", command == null ? "" : command), "");
+    }
+
     record Simple(String type, Map<String, Object> args, String refresh) implements GuiAction {}
 
     private static Map<String, Object> merge(Map<String, Object> a, Map<String, Object> b) {

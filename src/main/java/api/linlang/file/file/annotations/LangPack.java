@@ -11,20 +11,25 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 声明当前类为语言提供者
- * <p>注意，声明语言对象的文件不应该添加此注解</p>
+ * 声明语言对象的资源目录与文件格式
  *
- * <p>此注解应用于实现 {@link api.linlang.file.file.implement.LocaleProvider} 的类</p>
- *
- * <p>指定语言文件的文件名、存放路径以及格式</p>
- *
- * <p>在 <a href="https://jling.me/p/linlang/file/file/语言文件" target=_blank>语言文件</a> 页面中，您可以了解什么是语言提供者，这是一个琳琅专有名词</p>
+ * <p>此注解应用于语言对象类。语言内容由 resources 与磁盘中的语言资源文件提供。</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface LangPack {
-    /** 相对插件数据目录的路径，例如 "lang" 或 "i18n/messages" */
-    String path() default "lang";
+    /**
+     * 相对语言根目录的资源路径
+     */
+    String filePath() default "lang";
+
+    /**
+     * 相对语言根目录的资源路径
+     *
+     * @deprecated 请使用 {@link #filePath()}
+     */
+    @Deprecated
+    String path() default "";
 
     /** 文件格式：YAML/JSON */
     FileType format() default FileType.YAML;

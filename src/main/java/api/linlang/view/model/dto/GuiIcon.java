@@ -1,5 +1,8 @@
 package api.linlang.view.model.dto;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +19,11 @@ public record GuiIcon(
         List<String> lore,           // 支持 placeholders
         Map<String, Object> meta     // customModelData, nbt patch, etc.
 ) {
+    public GuiIcon {
+        lore = lore == null ? List.of() : Collections.unmodifiableList(new ArrayList<>(lore));
+        meta = meta == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(meta));
+    }
+
     public static GuiIcon vanilla(String material, String name, List<String> lore) {
         return new GuiIcon("vanilla", material, 1, name, lore, Map.of());
     }

@@ -32,7 +32,8 @@ public interface Repository<T, ID> extends AutoCloseable {
     java.util.stream.Stream<T> streamAll();
 
     default Optional<T> findOneWhere(String column, Object value) {
-        return findAllWhere(column, value).stream().findFirst();
+        Objects.requireNonNull(column, "column");
+        return findAllWhere(column + " = ?", value).stream().findFirst();
     }
 
     default void flush() { }
@@ -41,7 +42,7 @@ public interface Repository<T, ID> extends AutoCloseable {
     default void close() {  }
 
     default List<T> findAllWhere(String where, Object... params) {
-        if (where != null && where.contains("=") && params.length == 1) {
+        if (where != null && where.contains("=") && params != null && params.length == 1) {
             String field = where.split("=")[0].trim();
             Object expected = params[0];
             List<T> all = findAll();

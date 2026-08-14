@@ -50,7 +50,7 @@ public interface Linlang {
     /**
      * <p>琳琅的界面服务</p>
      *
-     * @return 可用的 LinInteract 实例
+     * @return 可用的 LinView 实例
      */
     LinView linView();
 

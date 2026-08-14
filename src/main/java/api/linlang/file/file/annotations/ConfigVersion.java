@@ -22,4 +22,9 @@ public @interface ConfigVersion {
      * 当前配置文件版本号
      */
     int value();
+
+    /**
+     * 配置文件中保存版本号的键
+     */
+    String key() default "_linlang-version";
 }

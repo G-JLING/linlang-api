@@ -8,6 +8,10 @@ public record BannerOptions(
         String pluginZh, String pluginEn, String version,
         List<String> developers, String site
 ) {
+    public BannerOptions {
+        developers = developers == null ? List.of() : List.copyOf(developers);
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -36,7 +40,7 @@ public record BannerOptions(
         }
 
         public Builder developers(List<String> devs) {
-            developers = List.copyOf(devs);
+            developers = devs == null ? List.of() : List.copyOf(devs);
             return this;
         }
 

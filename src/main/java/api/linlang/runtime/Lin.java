@@ -15,7 +15,7 @@ public final class Lin {
      *
      * @hidden
      */
-    public static final String API_VERSION = "1.2.1.0";
+    public static final String API_VERSION = "2.0.0.0";
 
     /**
      * 尝试通过运行时提供的 factory 方法为指定 platformContext 创建一个 per-plugin 的 facade。
@@ -35,26 +35,41 @@ public final class Lin {
         try {
             java.lang.reflect.Method m = implClass.getMethod("createFacade", Object.class);
             Object out = m.invoke(lin, platformContext);
-            if (out instanceof Linlang ll) return ll;
+            return requireFacade(out, m);
         } catch (NoSuchMethodException ignored) {
-            // fall through to generic search
-        } catch (Throwable ignored) {
+        } catch (ReflectiveOperationException e) {
+            throw facadeCreationFailed(e);
         }
 
-        // 回退：查找任何名为 create 的单参数方法，只要参数类型是 platformContext 的父类/接口即可
+        // 回退：查找兼容的单参数工厂方法
         for (java.lang.reflect.Method m : implClass.getMethods()) {
-            if (!m.getName().equals("create")) continue;
+            if (!m.getName().equals("createFacade") && !m.getName().equals("create")) continue;
             Class<?>[] params = m.getParameterTypes();
             if (params.length != 1) continue;
             if (!params[0].isAssignableFrom(ctxClass)) continue;
             try {
                 Object out = m.invoke(lin, platformContext);
-                if (out instanceof Linlang ll) return ll;
-            } catch (Throwable ignored) {
+                return requireFacade(out, m);
+            } catch (ReflectiveOperationException e) {
+                throw facadeCreationFailed(e);
             }
         }
 
         return lin;
+    }
+
+    private static Linlang requireFacade(Object value, java.lang.reflect.Method method) {
+        if (value instanceof Linlang facade) return facade;
+        throw new IllegalStateException("Facade factory returned an incompatible value: " + method);
+    }
+
+    private static IllegalStateException facadeCreationFailed(ReflectiveOperationException exception) {
+        Throwable cause = exception;
+        if (exception instanceof java.lang.reflect.InvocationTargetException invocation
+                && invocation.getCause() != null) {
+            cause = invocation.getCause();
+        }
+        return new IllegalStateException("Failed to create Linlang facade.", cause);
     }
 
 
@@ -83,15 +98,19 @@ public final class Lin {
      * @hidden
      */
     public static Linlang getOrNull() {
-        if (cached != null) return cached;
-
+        boolean bukkitAvailable = false;
         try {
             Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
+            bukkitAvailable = true;
             Object sm = bukkit.getMethod("getServicesManager").invoke(null);
             Object svc = sm.getClass().getMethod("load", Class.class).invoke(sm, Linlang.class);
             if (svc != null) return cached = (Linlang) svc;
+            cached = null;
         } catch (Throwable ignore) {
         }
+
+        if (bukkitAvailable) return null;
+        if (cached != null) return cached;
 
         for (Linlang impl : ServiceLoader.load(Linlang.class)) {
             return cached = impl;
@@ -118,7 +137,7 @@ public final class Lin {
 
     /**
      * 装载：发现 -> 注入环境上下文 -> 通过回调读取个性化选项 {@link LinOptions} -> 应用并 {@code reload()}
-     * <p>用于一站式初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
+     * <p>用于初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
      *
      * @param platformContext 运行环境上下文，在主类中传递自身即可
      * @param linOptions      琳琅个性化设置 {@link LinOptions} 实例
@@ -127,8 +146,9 @@ public final class Lin {
     public static Linlang setup(Object platformContext, LinOptions linOptions) {
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
-        if (linOptions != null && lin instanceof Linlang.Parametric p) {
-            linOptions.applyParameters(p);
+        if (lin instanceof Linlang.Parametric p) {
+            p.withPlatformContext(platformContext);
+            if (linOptions != null) linOptions.applyParameters(p);
         }
         if (lin instanceof Linlang.Configurable c && linOptions != null) {
             linOptions.applyTo(c);
@@ -139,7 +159,7 @@ public final class Lin {
 
     /**
      * 装载：发现 -> 注入环境上下文 -> 通过回调读取个性化选项 {@link LinOptions} -> 应用并 {@code reload()}
-     * <p>用于一站式初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
+     * <p>用于初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
      *
      * <p>在 <a href="http://jling.me/p/linlang/project/初始化">初始化</a> 页面中，您可以看到使用示例</p>
      *
@@ -150,6 +170,9 @@ public final class Lin {
     public static Linlang setup(Object platformContext, Function<Linlang, LinOptions> optionsBuilder) {
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
+        if (lin instanceof Linlang.Parametric p) {
+            p.withPlatformContext(platformContext);
+        }
         LinOptions opts = (optionsBuilder != null) ? optionsBuilder.apply(lin) : null;
         if (opts != null && lin instanceof Linlang.Parametric p) {
             opts.applyParameters(p);
@@ -172,8 +195,9 @@ public final class Lin {
     public static Linlang configure(Object platformContext, LinOptions opts) {
         var lin = find();
         lin = maybeCreateFacade(lin, platformContext);
-        if (opts != null && lin instanceof Linlang.Parametric p) {
-            opts.applyParameters(p);
+        if (lin instanceof Linlang.Parametric p) {
+            p.withPlatformContext(platformContext);
+            if (opts != null) opts.applyParameters(p);
         }
         if (lin instanceof Linlang.Configurable c && opts != null) {
             opts.applyTo(c);

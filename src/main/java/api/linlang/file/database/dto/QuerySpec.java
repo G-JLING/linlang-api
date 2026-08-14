@@ -27,7 +27,7 @@ public final class QuerySpec {
     }
 
     public QuerySpec params(List<?> ps) {
-        this.params.addAll(ps);
+        if (ps != null) this.params.addAll(ps);
         return this;
     }
 
@@ -37,11 +37,13 @@ public final class QuerySpec {
     }
 
     public QuerySpec limit(int limit) {
+        if (limit < 0) throw new IllegalArgumentException("limit must be non-negative");
         this.limit = limit;
         return this;
     }
 
     public QuerySpec offset(int offset) {
+        if (offset < 0) throw new IllegalArgumentException("offset must be non-negative");
         this.offset = offset;
         return this;
     }

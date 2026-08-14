@@ -46,9 +46,9 @@ public interface LangService {
     <T> void save(Class<T> keysClass, String locale);
 
     /**
-     * 保存所有已绑定语言对象的所有 locale 文件。
+     * 保存所有语言文件类的语言文件
      *
-     * <p>建议在插件卸载或重载前调用，以保存对语言文件的动态修改</p>
+     * <p>该方法用于将内存中对语言对象字段的修改写回文件。</p>
      */
     void saveAll();
 

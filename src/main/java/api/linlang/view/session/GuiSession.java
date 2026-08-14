@@ -28,10 +28,10 @@ public interface GuiSession {
     /** 动态区：通过 areaId 操作可填充区域。 */
     DynamicAreas dynamics();
 
-    /** 立即刷新（重渲染整个视图）。 */
+    /** 重新加载数据源并刷新整个视图。 */
     void refresh();
 
-    /** 只刷新某个动态区（更轻量）。 */
+    /** 重新加载并只刷新某个动态区。 */
     void refreshArea(String areaId);
 
     /** 关闭会话。 */

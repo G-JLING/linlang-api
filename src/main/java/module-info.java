@@ -1,5 +1,5 @@
 /**
- * <h2>琳琅（Linlang），一个适用于 Minecraft 多平台支持的开发工具。</h2>
+ * <h2>琳琅（Linlang），一个适用于 Minecraft 插件开发的工具。</h2>
  * <p>您正在阅读琳琅开发者接口文档（Linlang API Javadoc）。开发者接口文档是面向熟悉 Java 的专业开发者，帮助其了解该项目开放的代码接口的文档，其不能帮助您学习使用 Java 或编程。如果您想知道如何快速使用琳琅进行开发，请阅读 <a href="https://jling.me/linlang"> 琳琅 </a> 页面。</p>
  *
  * <p>琳琅不希望处理全部开发中可能遇到的需求，所以琳琅不是一个开发框架，而是一个开发工具。
@@ -16,12 +16,24 @@ module linlang.api {
     exports api.linlang.file.file.annotations;
     exports api.linlang.file.file.migrator;
     exports api.linlang.file.file.implement;
+    exports api.linlang.file.file.path;
+    exports api.linlang.file.file.tool;
     exports api.linlang.file.database.annotations;
     exports api.linlang.file.database.dto;
     exports api.linlang.file.database.repo;
     exports api.linlang.file.database;
     exports api.linlang.command;
+    exports api.linlang.command.message;
     exports api.linlang.messenger;
     exports api.linlang.audit;
     exports api.linlang.banner;
+    exports api.linlang.banner.provider;
+    exports api.linlang.banner.service;
+    exports api.linlang.view;
+    exports api.linlang.view.context;
+    exports api.linlang.view.model;
+    exports api.linlang.view.model.dto;
+    exports api.linlang.view.session;
+    exports api.linlang.view.spi;
+    exports api.linlang.view.state;
 }
