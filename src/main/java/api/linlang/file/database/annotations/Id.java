@@ -7,12 +7,13 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 声明为主键
- *
- * <p>此注解应用于字段</p>
+ * 将实体字段声明为主键。
  */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Id {
+    /**
+     * @return 是否由数据库自动生成主键值
+     */
     boolean auto() default true;
 }

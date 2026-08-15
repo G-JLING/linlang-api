@@ -9,34 +9,26 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 声明当前类为配置文件类
+ * 将类声明为配置文件对象，并指定文件名、相对路径和序列化格式。
  *
- * <p>此注解应用于类</p>
- *
- * <p>指定语言文件的文件名、存放路径以及格式</p>
- *
- * <p>在 <a href="https://jling.me/p/linlang/file/file/配置文件">配置文件</a> 页面中，您可以了解什么是配置文件类，这是一个琳琅专有名词</p>
- *
+ * <p>配置对象需要可通过无参构造方法创建；参与映射的字段应为公开字段。</p>
  */
 @Retention(RUNTIME)
 @Target({TYPE})
 public @interface ConfigFile {
 
     /**
-     * 文件名（不含扩展名）
-     * 默认为 config
+     * @return 不含扩展名的文件名
      */
     String name() default "config";
 
     /**
-     * 配置文件相对路径（相对于插件根目录）
-     * 默认为空，即插件根目录
+     * @return 相对于插件数据目录的子路径；空字符串表示插件数据目录
      */
     String path() default "";
 
     /**
-     * 配置文件格式
-     * 默认为 {@link FileType#YAML}
+     * @return 配置文件格式
      */
     FileType format() default FileType.YAML;
 }

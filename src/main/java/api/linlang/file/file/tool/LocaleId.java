@@ -3,20 +3,20 @@ package api.linlang.file.file.tool;
 import java.util.Locale;
 
 /**
- * locale 工具：将各种写法归一化到 language_REGION（例如 en_GB）。
+ * locale 名称归一化工具。
  */
 public final class LocaleId {
     private LocaleId(){}
 
     /**
-     * 归一化 locale：
+     * 将常见 locale 写法归一化为 {@code language_REGION}：
      * <ul>
      *   <li>enGB / en-GB / en_gb / EN_gb → en_GB</li>
      *   <li>zhCN → zh_CN</li>
      * </ul>
      *
      * @param raw 原始 locale 字符串
-     * @return 规范 locale；若 raw 无效则返回原字符串的安全处理结果
+     * @return 规范 locale；空值返回 {@code en_GB}
      */
     public static String normalize(String raw) {
         if (raw == null) return "en_GB";

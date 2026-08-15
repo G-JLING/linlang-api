@@ -4,9 +4,9 @@ import java.util.ServiceLoader;
 import java.util.function.Function;
 
 /**
- * 琳琅的入口门面，是唯一使用入口
+ * Linlang 运行时发现与插件级门面的统一入口。
  *
- * <p>其发现一个可用的琳琅服务提供给插件，并提供管理琳琅服务的方法</p>
+ * <p>通常使用 {@link #setup(Object, LinOptions)} 完成发现、插件上下文注入、选项应用和重载。</p>
  */
 public final class Lin {
 
@@ -119,11 +119,10 @@ public final class Lin {
     }
 
     /**
-     * 装载：发现 → 注入环境上下文 → {@code reload()}
-     * <p>用于分步骤初始化琳琅服务</p>
+     * 发现运行时、创建插件级门面、注入平台上下文并重载。
      *
      * @param platformContext 运行环境上下文，在主类中传递 <code>this</code> 即可
-     * @return 已就绪的运行时实例，但未进行任何个性化设置
+     * @return 已就绪但未应用个性化设置的插件级门面
      */
     public static Linlang init(Object platformContext) {
         var lin = find();
@@ -136,12 +135,11 @@ public final class Lin {
     }
 
     /**
-     * 装载：发现 -> 注入环境上下文 -> 通过回调读取个性化选项 {@link LinOptions} -> 应用并 {@code reload()}
-     * <p>用于初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
+     * 发现运行时、创建插件级门面、应用选项并重载。
      *
      * @param platformContext 运行环境上下文，在主类中传递自身即可
      * @param linOptions      琳琅个性化设置 {@link LinOptions} 实例
-     * @return 已就绪的运行时实例，且进行了个性化设置
+     * @return 已应用选项并完成重载的插件级门面
      */
     public static Linlang setup(Object platformContext, LinOptions linOptions) {
         var lin = find();
@@ -158,14 +156,11 @@ public final class Lin {
     }
 
     /**
-     * 装载：发现 -> 注入环境上下文 -> 通过回调读取个性化选项 {@link LinOptions} -> 应用并 {@code reload()}
-     * <p>用于初始化琳琅服务，且配置由琳琅托管，需要先绑定配置/语言再决定前缀与语言</p>
-     *
-     * <p>在 <a href="http://jling.me/p/linlang/project/初始化">初始化</a> 页面中，您可以看到使用示例</p>
+     * 发现运行时，并通过回调在插件级门面可用后创建和应用选项。
      *
      * @param platformContext 运行环境上下文，在主类中传递自身即可
      * @param optionsBuilder  函数式接口，回调：接受 {@link Linlang}，返回要应用的 {@link LinOptions}，可为 {@code null}
-     * @return 已就绪的运行时实例，且进行了个性化设置
+     * @return 已应用选项并完成重载的插件级门面
      */
     public static Linlang setup(Object platformContext, Function<Linlang, LinOptions> optionsBuilder) {
         var lin = find();
@@ -185,12 +180,13 @@ public final class Lin {
     }
 
     /**
-     * 接受 {@link LinOptions} 实例，对琳琅服务进行个性化设置
-     * <p>适合两阶段装配：先<code>Linlang lin = Lin.init()</code> 获得琳琅服务，然后使用此方法完成自定义初始化/p>
+     * 应用 {@link LinOptions}，但不主动重载运行时。
+     *
+     * <p>适合需要由调用方决定重载时机的两阶段装配。</p>
      *
      * @param platformContext 宿主上下文
      * @param opts            装配选项，可为 {@code null}
-     * @return 运行时实例（已应用选项但未重载）
+     * @return 已应用选项但未重载的插件级门面
      */
     public static Linlang configure(Object platformContext, LinOptions opts) {
         var lin = find();

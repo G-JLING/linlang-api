@@ -8,15 +8,16 @@ import api.linlang.view.LinView;
 import java.util.function.Function;
 
 /**
- * 琳琅主类
+ * 单个插件使用的 Linlang 服务门面。
  *
- * <p>琳琅动态服务的唯一入口</p>
+ * <p>通过该门面取得命令、文件、消息和界面服务。门面及其子服务的生命周期通常与插件一致。</p>
  */
 public interface Linlang {
 
     /**
-     * 运行时版本
+     * 返回 Linlang 运行时实现版本。
      *
+     * @return 运行时版本字符串
      * @hidden
      */
     String runtimeVersion();
@@ -59,9 +60,9 @@ public interface Linlang {
      */
 
     /**
-     * 安全地关闭琳琅服务
+     * 安全关闭该插件门面持有的服务。
      *
-     * <p>在软件卸载时调用</p>
+     * <p>应在插件卸载时调用。</p>
      */
     default void close() {}
 
@@ -69,6 +70,9 @@ public interface Linlang {
      * 设置琳琅服务的个性化设置
      *
      * <p>例如琳琅服务消息前缀等。调用 {@link Settings#apply()} 将热应用修改</p>
+     *
+     * @return 个性化设置构建器
+     * @throws IllegalStateException 当前运行时不支持动态设置时
      */
     default Settings settings() {
         if (!(this instanceof Configurable c))
@@ -80,6 +84,9 @@ public interface Linlang {
      * 更改琳琅服务的系统参数
      *
      * <p>例如平台上下文、启动语言等。调用 {@link Parameters#apply()} 后将触发一次重建</p>
+     *
+     * @return 运行参数构建器
+     * @throws IllegalStateException 当前运行时不支持参数重建时
      */
     default Parameters parameters() {
         if (!(this instanceof Parametric p))
@@ -110,7 +117,8 @@ public interface Linlang {
          *
          * <p>是否使得琳琅审计（LinLog）归于平台包装的日志通道。如 Bukkit 的 <code>plugin.getLogger()</code>
          *
-         * @param v 布尔值
+     * @param v 布尔值
+     * @return 当前设置构建器
          */
         public Settings usingPluginLogger(boolean v) {
             c.usingPluginLogger(v);
@@ -126,7 +134,8 @@ public interface Linlang {
          *
          * <p>与 {@link #dynamicTotalPrefix(Function)} 选其一</p>
          *
-         * @param prefix 前缀文本
+     * @param prefix 前缀文本
+     * @return 当前设置构建器
          */
         public Settings totalPrefix(String prefix) {
             c.totalPrefix(prefix);
@@ -142,7 +151,8 @@ public interface Linlang {
          *
          * <p>与 {@link #totalPrefix(String)} 选其一</p>
          *
-         * @param func 函数式接口
+     * @param func 根据消息接收者计算前缀的函数
+     * @return 当前设置构建器
          */
         public Settings dynamicTotalPrefix(Function<Object, String> func) {
             c.totalPrefixProvider(func);
@@ -152,7 +162,9 @@ public interface Linlang {
         /**
          * 应用个性化设置
          *
-         * <p>调用后将触发一次重载，和 {@link Linlang#reload()} 功能一致，使其链式调用的方式。</p>
+     * <p>调用后将触发一次重载，和 {@link Linlang#reload()} 功能一致，使其链式调用的方式。</p>
+     *
+     * @return 所属 Linlang 门面
          */
         public Linlang apply() {
             c.reload();
@@ -181,7 +193,8 @@ public interface Linlang {
         /**
          * 设置平台上下文
          *
-         * @param platformContext 平台上下文对象（如 Bukkit 的 JavaPlugin 实例）
+     * @param platformContext 平台上下文对象（如 Bukkit 的 JavaPlugin 实例）
+     * @return 当前参数构建器
          */
         public Parameters platformContext(Object platformContext) {
             p.withPlatformContext(platformContext);
@@ -193,7 +206,8 @@ public interface Linlang {
          *
          * <b>琳琅服务的全局参数：语言</b>
          *
-         * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
+     * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
+     * @return 当前参数构建器
          */
         public Parameters totalLocale(String v) {
             p.totalLocale(v);
@@ -203,7 +217,9 @@ public interface Linlang {
         /**
          * 应用运行参数设置
          *
-         * <p>调用后将触发一次重建，和 {@link Linlang#restart()} 功能一致，使其链式调用的方式。</p>
+     * <p>调用后将触发一次重建，和 {@link Linlang#restart()} 功能一致，使其链式调用的方式。</p>
+     *
+     * @return 所属 Linlang 门面
          */
         public Linlang apply() {
             p.restart();

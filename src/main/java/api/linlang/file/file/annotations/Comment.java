@@ -8,7 +8,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 为配置类或配置字段添加 YAML 注释
+ * 为配置类或配置字段声明 YAML 注释。
  *
  * <p>请注意，{@code Comment} 不应该用于语言文件。</p>
  *
@@ -18,7 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({TYPE, FIELD})
 public @interface Comment {
     /**
-     * 注释内容，每一个数组元素为一行
+     * @return 注释行；每个数组元素对应一行
      */
     String[] value();
 }

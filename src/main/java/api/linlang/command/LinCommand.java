@@ -4,10 +4,24 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * 琳琅命令服务。
+ * Linlang 命令服务。
+ *
+ * <p>命令由规范字符串、执行器、权限、执行目标、描述和参数标签组成。规范字符串的
+ * 解析规则由运行时实现提供。</p>
  */
 public interface LinCommand {
 
+    /**
+     * 注册带静态国际化文本的命令。
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param perm 权限要求，可为 {@code null}
+     * @param target 允许的执行目标
+     * @param desc 命令描述，可为 {@code null}
+     * @param labelsI18n 参数名到 locale 文本的映射
+     * @return 当前命令服务
+     */
     LinCommand register(String spec, LinCommand.CommandExecutor exec, Permission perm, ExecTarget target, Desc desc,
                         Map<String, Map<String, String>> labelsI18n);
 
@@ -21,6 +35,7 @@ public interface LinCommand {
      * @param target 执行目标
      * @param descProvider 命令描述的延迟提供者（可为 null）
      * @param labelProviders 参数标签提供者：paramName -> supplier（可为 null/空）
+     * @return 当前命令服务
      */
     LinCommand registerLazy(
             String spec,
@@ -32,7 +47,14 @@ public interface LinCommand {
     );
 
     /**
-     * 注册命令（延迟 i18n 版本，无参数标签）。
+     * 注册不包含参数标签的延迟国际化命令。
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param perm 权限要求，可为 {@code null}
+     * @param target 允许的执行目标
+     * @param descProvider 命令描述提供者，可为 {@code null}
+     * @return 当前命令服务
      */
     default LinCommand registerLazy(
             String spec,
@@ -44,6 +66,16 @@ public interface LinCommand {
         return registerLazy(spec, exec, perm, target, descProvider, Map.of());
     }
 
+    /**
+     * 注册不包含参数标签的静态国际化命令。
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param perm 权限要求，可为 {@code null}
+     * @param target 允许的执行目标
+     * @param desc 命令描述，可为 {@code null}
+     * @return 当前命令服务
+     */
     default LinCommand register(
             String spec,
             LinCommand.CommandExecutor exec,
@@ -69,14 +101,23 @@ public interface LinCommand {
         String get(String localeTag);
 
         /**
-         * 将一个无参 Supplier 包装为 i18n supplier（忽略 locale）。
+         * 将无参文本提供者包装为国际化提供者。
+         *
+         * @param s 文本提供者，可为 {@code null}
+         * @return 忽略 locale 的国际化提供者
          */
         static I18nSupplier of(Supplier<String> s) {
             return locale -> s == null ? null : s.get();
         }
 
         /**
-         * 将静态 i18n Map 包装为 i18n supplier（宽松匹配 zh_CN / zh-CN / zh）。
+         * 将静态 locale 映射包装为国际化提供者。
+         *
+         * <p>查找顺序为完整标签、短横线标签、语言标签、{@code zh_CN}、{@code en_GB}，
+         * 最后回退到映射中的首个值。</p>
+         *
+         * @param i18n locale 到文本的映射
+         * @return 使用宽松 locale 匹配的国际化提供者
          */
         static I18nSupplier from(Map<String, String> i18n) {
             return locale -> {
@@ -100,12 +141,33 @@ public interface LinCommand {
         }
     }
 
+    /**
+     * 静态国际化参数标签构建器。
+     */
     interface Labels {
+        /**
+         * 添加参数标签。
+         *
+         * @param key 命令参数名
+         * @param locale locale 标签
+         * @param text 显示文本
+         * @return 当前构建器
+         */
         Labels add(String key, String locale, String text);
+
+        /**
+         * @return 参数名到 locale 文本的映射
+         */
         Map<String, Map<String,String>> build();
 
+        /**
+         * @return 新的标签构建器
+         */
         static Labels create() { return new Impl(); }
 
+        /**
+         * {@link Labels} 的默认实现。
+         */
         final class Impl implements Labels {
             private final Map<String, Map<String,String>> m = new LinkedHashMap<>();
             public Labels add(String key, String locale, String text) {
@@ -117,14 +179,31 @@ public interface LinCommand {
     }
 
     /**
-     * 延迟参数标签构建器：每个参数只需要提供一个 supplier（通常直接引用语言对象字段）。
+     * 延迟国际化参数标签构建器。
      */
     interface LazyLabels {
+        /**
+         * 添加参数标签提供者。
+         *
+         * @param paramName 命令参数名
+         * @param supplier 文本提供者
+         * @return 当前构建器
+         */
         LazyLabels add(String paramName, I18nSupplier supplier);
+
+        /**
+         * @return 参数名到文本提供者的映射
+         */
         Map<String, I18nSupplier> build();
 
+        /**
+         * @return 新的延迟标签构建器
+         */
         static LazyLabels create() { return new Impl(); }
 
+        /**
+         * {@link LazyLabels} 的默认实现。
+         */
         final class Impl implements LazyLabels {
             private final Map<String, I18nSupplier> m = new LinkedHashMap<>();
             @Override
@@ -140,7 +219,12 @@ public interface LinCommand {
     }
 
     /**
-     * 便捷构造：paramName, supplier, paramName, supplier...
+     * 通过“参数名、提供者”对构造延迟标签映射。
+     *
+     * @param kv2 交替排列的参数名和 {@link I18nSupplier}
+     * @return 标签映射
+     * @throws IllegalArgumentException 参数数量为奇数时
+     * @throws ClassCastException 提供者不是 {@link I18nSupplier} 时
      */
     static Map<String, I18nSupplier> lazyLabels(Object... kv2) {
         Map<String, I18nSupplier> out = new LinkedHashMap<>();
@@ -154,6 +238,12 @@ public interface LinCommand {
         return out;
     }
 
+    /**
+     * 通过“参数名、locale、文本”三元组构造静态标签映射。
+     *
+     * @param kv3 重复排列的参数名、locale 和文本
+     * @return 标签映射
+     */
     static Map<String, Map<String,String>> labels(Object... kv3) {
         Map<String, Map<String,String>> out = new LinkedHashMap<>();
         for (int i = 0; i + 2 < kv3.length; i += 3) {
@@ -165,13 +255,32 @@ public interface LinCommand {
         return out;
     }
 
+    /**
+     * 使用标签构建器注册静态国际化命令。
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param perm 权限要求，可为 {@code null}
+     * @param target 允许的执行目标
+     * @param desc 命令描述，可为 {@code null}
+     * @param labels 参数标签构建器
+     * @return 当前命令服务
+     */
     default LinCommand register(String spec, CommandExecutor exec, Permission perm,
                                 ExecTarget target, Desc desc, Labels labels) {
         return register(spec, exec, perm, target, desc, labels.build());
     }
 
     /**
-     * 注册命令（延迟 i18n 版本，使用 LazyLabels 构建参数标签）。
+     * 使用标签构建器注册延迟国际化命令。
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param perm 权限要求，可为 {@code null}
+     * @param target 允许的执行目标
+     * @param descProvider 命令描述提供者，可为 {@code null}
+     * @param labels 参数标签构建器，可为 {@code null}
+     * @return 当前命令服务
      */
     default LinCommand registerLazy(
             String spec,
@@ -185,30 +294,159 @@ public interface LinCommand {
     }
 
 
+    /**
+     * 单次命令执行上下文。
+     */
     interface Ctx {
-        // 平台 sender（Bukkit: CommandSender）
+        /**
+         * @return 平台命令发送者
+         */
         Object sender();
+
+        /**
+         * 获取已经解析的参数。
+         *
+         * @param name 参数名
+         * @param <T> 期望类型
+         * @return 参数值；不存在时通常为 {@code null}
+         */
         <T> T get(String name);
+
+        /**
+         * 获取已经解析的参数或默认值。
+         *
+         * @param name 参数名
+         * @param def 默认值
+         * @param <T> 期望类型
+         * @return 参数值或默认值
+         */
         <T> T getOr(String name, T def);
+
+        /**
+         * 获取玩家发送者。
+         *
+         * <p>平台实现应覆盖此方法并返回其玩家类型；默认实现始终抛出异常。</p>
+         *
+         * @param err 发送者不是玩家时的错误消息
+         * @param <T> 平台玩家类型
+         * @return 玩家对象
+         */
         default <T> T requirePlayer(String err){ throw new IllegalStateException(err); }
+
+        /**
+         * @return 当前命令语言
+         */
         Locale locale();
     }
 
-    @FunctionalInterface interface CommandExecutor { void run(Ctx ctx) throws Exception; }
-    enum ExecTarget { PLAYER, CONSOLE, ALL }
-    record Permission(String node) { public static Permission perms(String n){ return new Permission(n); } }
-    record Desc(Map<String,String> i18n) { public static Desc desc(Object...kv){ var m=new LinkedHashMap<String,String>(); for(int i=0;i+1<kv.length;i+=2)m.put((String)kv[i],(String)kv[i+1]); return new Desc(m);} }
-
-    // 类型解析 SPI
-    interface TypeResolver {
-        boolean supports(String typeId);                           // enum / int / float / string / regex / minecraft:item 等
-        Object parse(ParseCtx ctx, String token) throws Exception; // 已解析对象
-        List<String> complete(ParseCtx ctx, String prefix);        // Tab 候选
+    /**
+     * 命令执行器。
+     */
+    @FunctionalInterface
+    interface CommandExecutor {
+        /**
+         * 执行命令。
+         *
+         * @param ctx 命令上下文
+         * @throws Exception 命令业务执行失败时
+         */
+        void run(Ctx ctx) throws Exception;
     }
+
+    /**
+     * 命令允许的发送者类型。
+     */
+    enum ExecTarget {
+        /** 仅玩家。 */
+        PLAYER,
+        /** 仅控制台。 */
+        CONSOLE,
+        /** 玩家或控制台。 */
+        ALL
+    }
+
+    /**
+     * 命令权限要求。
+     *
+     * @param node 权限节点
+     */
+    record Permission(String node) {
+        /**
+         * @param n 权限节点
+         * @return 权限要求
+         */
+        public static Permission perms(String n){ return new Permission(n); }
+    }
+
+    /**
+     * 命令描述的静态国际化文本。
+     *
+     * @param i18n locale 到描述文本的映射
+     */
+    record Desc(Map<String,String> i18n) {
+        /**
+         * 通过“locale、文本”对构造命令描述。
+         *
+         * @param kv 交替排列的 locale 与文本
+         * @return 命令描述
+         */
+        public static Desc desc(Object...kv){ var m=new LinkedHashMap<String,String>(); for(int i=0;i+1<kv.length;i+=2)m.put((String)kv[i],(String)kv[i+1]); return new Desc(m);}
+    }
+
+    /**
+     * 自定义命令参数类型解析器。
+     */
+    interface TypeResolver {
+        /**
+         * 判断是否支持参数类型。
+         *
+         * @param typeId 类型 ID
+         * @return 支持时为 {@code true}
+         */
+        boolean supports(String typeId);
+
+        /**
+         * 解析单个命令参数。
+         *
+         * @param ctx 解析上下文
+         * @param token 原始参数文本
+         * @return 解析后的值
+         * @throws Exception 参数无效或解析失败时
+         */
+        Object parse(ParseCtx ctx, String token) throws Exception;
+
+        /**
+         * 提供参数补全候选。
+         *
+         * @param ctx 解析上下文
+         * @param prefix 当前输入前缀
+         * @return 补全候选
+         */
+        List<String> complete(ParseCtx ctx, String prefix);
+    }
+
+    /**
+     * 参数解析上下文。
+     */
     interface ParseCtx {
-        Map<String,Object> vars();                                 // 已解析参数（供后续约束使用）
-        Map<String,String> meta();                                 // 形如 min/max/regex/tag 的补充
-        Object platform();                                         // Bukkit Plugin/Server 等
-        Object sender();                                           // 平台 sender
+        /**
+         * @return 此前已经解析的参数
+         */
+        Map<String,Object> vars();
+
+        /**
+         * @return 参数规范中的约束元数据
+         */
+        Map<String,String> meta();
+
+        /**
+         * @return 平台上下文
+         */
+        Object platform();
+
+        /**
+         * @return 平台命令发送者
+         */
+        Object sender();
     }
 }

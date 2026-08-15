@@ -5,53 +5,69 @@ import api.linlang.file.database.repo.Repository;
 import java.util.Objects;
 
 /**
- * Database service facade used by plugins and higher-level modules.
- * <p>
- * This API no longer uses ServiceLoader/SPI discovery. Create the concrete
- * implementation directly in your runtime module (e.g. core) and pass it
- * around via dependency injection.
- * <p>
- * Typical lifecycle:
+ * 数据库服务门面，负责连接初始化、实体仓库管理与结构迁移。
+ *
+ * <p>服务实例由 Linlang 运行时提供，不通过 {@link java.util.ServiceLoader} 发现。
+ * 一个典型生命周期如下：</p>
  * <ol>
- *   <li>Construct implementation</li>
- *   <li>{@link #init(DbType, DbConfig)} to open connections</li>
- *   <li>Obtain repositories via {@link #repo(Class)}</li>
- *   <li>Optionally {@link #migrate()} schemas</li>
- *   <li>Call {@link #close()} on shutdown</li>
+ *   <li>使用 {@link #init(DbType, DbConfig)} 初始化连接池；</li>
+ *   <li>使用 {@link #repo(Class)} 获取实体仓库；</li>
+ *   <li>按需使用 {@link #migrate()} 同步数据库结构；</li>
+ *   <li>在插件关闭时调用 {@link #close()}。</li>
  * </ol>
  */
 public interface DataService extends AutoCloseable {
 
     /**
-     * Initialize connection pool / driver by database type and config.
+     * 根据数据库类型与连接配置初始化服务。
+     *
+     * @param type 数据库类型
+     * @param cfg 连接配置
+     * @throws IllegalStateException 服务已经初始化或运行时无法建立连接时
      */
     void init(DbType type, DbConfig cfg);
 
     /**
-     * Obtain a repository for the annotated entity type.
-     * @param entityType entity class
-     * @return repository bound to that entity
+     * 获取绑定到指定实体类型的仓库。
+     *
+     * @param entityType 实体类
+     * @param <T> 实体类型
+     * @param <ID> 主键类型
+     * @return 对应实体的仓库
      */
     <T, ID> Repository<T, ID> repo(Class<T> entityType);
 
     /**
-     * Perform pending schema migrations if supported by the implementation.
-     * No-op if unsupported.
+     * 执行实现支持的数据库结构迁移。
+     *
+     * <p>不支持自动迁移的实现可以不执行任何操作。</p>
      */
     void migrate();
 
-    /** Flush all pending changes to the underlying store. */
+    /**
+     * 将所有仓库中尚未提交的修改写入底层数据库。
+     */
     void flushAll();
 
-    /** Flush the repository of a specific entity type. */
+    /**
+     * 将指定实体仓库中尚未提交的修改写入底层数据库。
+     *
+     * @param entityType 实体类
+     * @param <T> 实体类型
+     */
     <T> void flushOf(Class<T> entityType);
 
     /**
-     * Close the service. Default behaviour flushes all repositories.
+     * 关闭数据库服务。
+     *
+     * <p>默认实现仅调用 {@link #flushAll()}；具体运行时可以覆盖此方法以释放连接池。</p>
      */
     @Override
     default void close() { flushAll(); }
 
+    /**
+     * 运行时内建支持的数据库类型。
+     */
     enum DbType {
         /**
          * H2 数据库
@@ -63,12 +79,25 @@ public interface DataService extends AutoCloseable {
         MYSQL
     }
 
+    /**
+     * 数据库连接配置。
+     *
+     * <p>密码允许为 {@code null}；URL 不得为空，连接池大小必须大于零。</p>
+     */
     class DbConfig {
         private final String url;
         private final String user;
         private final String pass;
         private final int poolSize;
 
+        /**
+         * 创建数据库连接配置。
+         *
+         * @param url JDBC URL
+         * @param user 数据库用户名，可为 {@code null}
+         * @param pass 数据库密码，可为 {@code null}
+         * @param poolSize 连接池最大连接数
+         */
         public DbConfig(String url, String user, String pass, int poolSize){
             this.url = Objects.requireNonNull(url, "url");
             if (url.isBlank()) throw new IllegalArgumentException("url must not be blank");
@@ -78,12 +107,35 @@ public interface DataService extends AutoCloseable {
             this.poolSize = poolSize;
         }
 
+        /**
+         * @return JDBC URL
+         */
         public String url(){ return url; }
+
+        /**
+         * @return 数据库用户名，可能为 {@code null}
+         */
         public String user(){ return user; }
+
+        /**
+         * @return 数据库密码，可能为 {@code null}
+         */
         public String pass(){ return pass; }
+
+        /**
+         * @return 连接池最大连接数
+         */
         public int poolSize(){ return poolSize; }
 
-        /** 便捷构造。 */
+        /**
+         * 创建数据库连接配置。
+         *
+         * @param url JDBC URL
+         * @param user 数据库用户名，可为 {@code null}
+         * @param pass 数据库密码，可为 {@code null}
+         * @param poolSize 连接池最大连接数
+         * @return 新的连接配置
+         */
         public static DbConfig of(String url, String user, String pass, int poolSize){
             return new DbConfig(url, user, pass, poolSize);
         }

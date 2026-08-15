@@ -11,7 +11,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 声明语言对象的资源目录与文件格式
+ * 声明语言对象的资源目录、文件格式与 locale 策略。
  *
  * <p>此注解应用于语言对象类。语言内容由 resources 与磁盘中的语言资源文件提供。</p>
  */
@@ -19,27 +19,36 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(ElementType.TYPE)
 public @interface LangPack {
     /**
-     * 相对语言根目录的资源路径
+     * @return 相对于插件数据目录和 {@code resources/langservice} 的语言包路径
      */
     String filePath() default "lang";
 
     /**
-     * 相对语言根目录的资源路径
+     * 旧版语言包路径属性。
      *
      * @deprecated 请使用 {@link #filePath()}
+     * @return 相对语言包路径
      */
     @Deprecated
     String path() default "";
 
-    /** 文件格式：YAML/JSON */
+    /**
+     * @return 语言文件格式
+     */
     FileType format() default FileType.YAML;
 
-    /** 默认语言文件名（不存在时生成它） */
+    /**
+     * @return 当前全局语言不可用时使用的默认 locale
+     */
     String defaultLocale() default "en_GB";
 
-    /** 是否在 bind 时自动生成内建语言文件（缺失补齐也算生成行为） */
+    /**
+     * @return 是否允许绑定时生成和补齐磁盘语言文件
+     */
     boolean emit() default true;
 
-    /** 归一化策略：是否把 enGB/en-GB 归一化到 en_GB */
+    /**
+     * @return 是否将 {@code enGB}、{@code en-GB} 等名称归一化为 {@code en_GB}
+     */
     boolean normalizeLocale() default true;
 }

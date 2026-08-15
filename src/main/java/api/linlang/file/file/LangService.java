@@ -1,36 +1,42 @@
 package api.linlang.file.file;
 
-import api.linlang.file.file.FileType;
-
 import java.util.Set;
 
 /**
- * 语言文件服务
+ * 将语言资源文件绑定为可直接读取的 Java 对象。
+ *
+ * <p>活动语言由 Linlang 的全局语言参数决定。每个语言包可以通过注解声明默认语言、
+ * 文件格式、归一化策略和写回策略。</p>
  */
 public interface LangService {
 
     /**
-     * 绑定一个语言对象（Keys Class）
+     * 绑定语言对象，并允许生成和补齐语言文件。
      *
      * @param keysClass 语言对象类
-     * @return 可用的语言对象实例
+     * @param <T> 语言对象类型
+     * @return 由服务管理的活动语言对象
      */
     <T> T bind(Class<T> keysClass);
 
     /**
-     * 绑定一个语言对象（Keys Class），并覆写该次 bind 的 emit 行为
+     * 绑定语言对象，并覆盖本次绑定的写回策略。
      *
-     * <p>emit=true 表示允许：
-     * emit=false 表示仅读取，不写回磁盘。</p>
+     * <p>{@code emit} 为 {@code false} 时仅读取资源或磁盘文件，不生成、补齐或保存文件。</p>
+     *
+     * @param keysClass 语言对象类
+     * @param emit 是否允许生成和写回文件
+     * @param <T> 语言对象类型
+     * @return 由服务管理的活动语言对象
      */
     <T> T bind(Class<T> keysClass, boolean emit);
 
     /**
-     * 重新扫描语言目录，并重新读取所有已绑定语言对象的文件内容，刷新到内存
+     * 重新扫描语言目录，并原地刷新所有已绑定语言对象。
      *
-     * <p>该方法不会改变当前全局语言（total locale），只会重读磁盘文件并补齐缺失键（若允许写回）</p>
+     * <p>该方法不会改变当前全局语言；允许写回的语言包会同时补齐缺失键。</p>
      *
-     * <p>当你在外部编辑器修改了语言文件内容，需要调用该方法使其生效</p>
+     * <p>外部修改语言文件后，需要调用此方法使修改生效。</p>
      */
     void reload();
 
@@ -42,20 +48,24 @@ public interface LangService {
      *
      * @param keysClass 语言对象类
      * @param locale    locale，如 zh_CN / en_GB
+     * @param <T> 语言对象类型
      */
     <T> void save(Class<T> keysClass, String locale);
 
     /**
-     * 保存所有语言文件类的语言文件
+     * 将所有已绑定活动语言对象保存到当前全局语言对应的文件。
      *
      * <p>该方法用于将内存中对语言对象字段的修改写回文件。</p>
      */
     void saveAll();
 
     /**
-     * 返回当前已发现的 locale 集合（来自语言目录扫描结果）。
+     * 返回磁盘中已经发现的 locale 集合。
      *
-     * <p>locale 会在扫描阶段按归一化规则处理，例如 enGB/en-GB → en_GB</p>
+     * <p>启用语言包归一化时，名称会按规则处理，例如 {@code enGB}、{@code en-GB}
+     * 会变为 {@code en_GB}。</p>
+     *
+     * @return 不重复的 locale 集合
      */
     Set<String> availableLocales();
 
@@ -69,17 +79,23 @@ public interface LangService {
     void ensureAllLocales();
 
     /**
-     * 仅对指定 Keys Class 执行缺失键补齐。
+     * 对指定语言对象的所有已发现 locale 文件执行缺失键补齐。
+     *
+     * @param keysClass 语言对象类
+     * @param <T> 语言对象类型
      */
     <T> void ensure(Class<T> keysClass);
 
     /**
-     * 翻译：按 key 获取模板文本（可选能力）。
+     * 按路径键取得当前语言的模板文本并执行参数格式化。
      *
-     * <p>如果你希望保留 “key → 文本” 的扁平翻译入口，可用此方法。
-     * 其 key 的语义由实现决定（例如 message.prefix 这样的路径键）。</p>
+     * <p>优先查询当前语言，随后查询各语言包声明的默认语言；仍不存在时返回键本身。
+     * 偶数个“名称、值”参数用于替换 {@code {name}}，其他参数交给
+     * {@link java.text.MessageFormat} 处理。</p>
      *
-     * <p>@hidden：如果你不希望对外暴露，也可以删掉此方法，仅保留 Keys Class 访问方式</p>
+     * @param key 字段路径键，例如 {@code message.prefix}
+     * @param args 可选格式化参数
+     * @return 翻译后的文本；未找到时返回 {@code key}
      */
     String tr(String key, Object... args);
 }

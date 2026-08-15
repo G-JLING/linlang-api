@@ -5,24 +5,31 @@ import api.linlang.file.file.migrator.Migrator;
 import java.util.Collection;
 
 /**
- * 配置文件服务
+ * 将带有配置注解的 Java 对象绑定到 YAML 或 JSON 文件。
+ *
+ * <p>同一服务重复绑定同一配置类时，运行时返回并刷新其活动对象。调用方可以直接修改
+ * 活动对象的公开字段，并通过 {@link #saveAll()} 写回磁盘。</p>
  */
 public interface ConfigService {
 
     /**
-     * 绑定配置文件对象
-     * <p>将一个配置文件对象绑定至配置文件服务，并根据传参决定是否生成配置文件</p>
+     * 绑定配置类，并根据参数决定是否允许生成和写回文件。
      *
-     * @param config 配置文件对象类
-     * @param emit   是否为此配置生成配置文件
+     * <p>{@code emit} 为 {@code false} 时仍会读取磁盘并填充对象，但不会创建、补齐或保存文件。</p>
+     *
+     * @param config 配置类
+     * @param emit 是否允许生成和写回文件
+     * @param <T> 配置对象类型
+     * @return 由服务管理的活动配置对象
      */
     <T> T bind(Class<T> config, boolean emit);
 
     /**
-     * 绑定配置文件对象
-     * <p>将一个配置文件对象绑定至配置文件服务，且生成配置文件</p>
+     * 绑定配置类，并允许生成和写回文件。
      *
      * @param config 配置对象类
+     * @param <T> 配置对象类型
+     * @return 由服务管理的活动配置对象
      */
     <T> T bind(Class<T> config);
 
@@ -53,21 +60,26 @@ public interface ConfigService {
     }
 
     /**
+     * 将指定配置对象保存到其注解声明的文件。
+     *
+     * @param type 配置类
+     * @param config 待保存对象
+     * @param <T> 配置对象类型
      * @hidden
      */
     <T> void save(Class<T> type, T config);
 
-    /** 保存所有已绑定的配置文件对象生成的配置文件中的修改
+    /**
+     * 保存所有已绑定且允许写回的配置对象。
      *
-     * <p>在软件卸载或重载前调用该方法以保存修改</p>
+     * <p>应在插件关闭或主动重载前调用，以保留内存中的修改。</p>
      */
     void saveAll();
 
     /**
-     * 重新读取磁盘上所有绑定的文件并应用
-     * <p>更新会被应用于最后一次赋值 {@link #bind(Class)} 的字段</p>
+     * 重新读取所有已绑定配置的磁盘文件，并原地更新活动对象。
      *
-     * <p>若文件被代码更改过，应先调用 {@link #saveAll()} 方法使更改落盘</p>
+     * <p>尚未保存的内存修改会被磁盘内容覆盖；需要保留时应先调用 {@link #saveAll()}。</p>
      */
     default void reload() {}
 }

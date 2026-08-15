@@ -5,42 +5,68 @@ import api.linlang.view.state.GuiState;
 import java.util.Optional;
 
 /**
- * 界面会话类型
+ * 单个 viewer 打开视图后产生的运行态会话。
  *
- * 一次基本界面会话
- * 一个界面一定拥有一个静态区，可能拥有一个或多个动态区
- * 一个会话拥有一个观众（平台实现的玩家类型）
+ * <p>会话始终包含静态区和共享状态，可以包含零个或多个动态区。会话对象只在其所属
+ * {@link api.linlang.view.LinView} 生命周期内有效。</p>
  */
 public interface GuiSession {
 
-    /** 会话所属 viewer（例如 Bukkit Player）。 */
+    /**
+     * @return 会话所属的平台 viewer
+     */
     Object viewer();
 
-    /** 当前 viewId。 */
+    /**
+     * @return 当前视图 ID
+     */
     String viewId();
 
-    /** 会话状态（可在 hook 中修改；用于过滤/分页/临时输入等）。 */
+    /**
+     * @return 当前会话的可变共享状态
+     */
     GuiState state();
 
-    /** 静态区：通过 UID 定位与修改控件。 */
+    /**
+     * @return 静态控件集合
+     */
     StaticView statics();
 
-    /** 动态区：通过 areaId 操作可填充区域。 */
+    /**
+     * @return 动态区集合
+     */
     DynamicAreas dynamics();
 
-    /** 重新加载数据源并刷新整个视图。 */
+    /**
+     * 重新加载全部数据源并刷新整个视图。
+     */
     void refresh();
 
-    /** 重新加载并只刷新某个动态区。 */
+    /**
+     * 重新加载指定动态区的数据源，并仅更新该区域。
+     *
+     * @param areaId 动态区 ID
+     */
     void refreshArea(String areaId);
 
-    /** 关闭会话。 */
+    /**
+     * 关闭当前会话。
+     */
     void close();
 
-    /** 返回上一页（如果 session 维护了导航栈）。 */
+    /**
+     * 返回导航栈中的上一视图。
+     *
+     * <p>默认实现不执行操作，支持导航的运行时会覆盖此方法。</p>
+     */
     default void back() { /* optional in impl */ }
 
-    /** 获取动态区（不存在则 empty）。 */
+    /**
+     * 以 Optional 形式获取动态区。
+     *
+     * @param areaId 动态区 ID
+     * @return 动态区；不存在时为空
+     */
     default Optional<DynamicAreaView> area(String areaId) {
         return Optional.ofNullable(dynamics().area(areaId));
     }

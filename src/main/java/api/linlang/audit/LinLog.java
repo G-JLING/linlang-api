@@ -156,25 +156,43 @@ public final class LinLog {
     // 静态日志方法（runtime 全局）
     // ----------------------------------------------------------------------
 
-    /** 输出 DEBUG 级别日志（无 owner，上下文视为运行时全局）。
+    /**
+     * 输出 DEBUG 级别日志。
+     *
+     * @param m 消息内容
+     * @param kv 扩展键值对
      * @hidden
      */
     public static void debug(String m, Object... kv) {
         P.log("DEBUG", m, kv);
     }
 
-    /** 输出 INFO 级别日志（无 owner，上下文视为运行时全局）。
+    /**
+     * 输出 INFO 级别日志。
+     *
+     * @param m 消息内容
+     * @param kv 扩展键值对
      * @hidden
      */
     public static void info(String m, Object... kv) {
         P.log("INFO", m, kv);
     }
 
+    /**
+     * 输出 Banner 通道日志。
+     *
+     * @param s 单行铭牌文本
+     * @hidden
+     */
     public static void banr(String s) {
         P.log("BANR", s);
     }
 
-    /** 输出 WARN 级别日志（无 owner，上下文视为运行时全局）。
+    /**
+     * 输出 WARN 级别日志。
+     *
+     * @param m 消息内容
+     * @param kv 扩展键值对
      * @hidden
      */
     public static void warn(String m, Object... kv) {
@@ -183,6 +201,9 @@ public final class LinLog {
 
     /**
      * 输出 INIT 日志，通常用于模块 / 运行时初始化阶段。
+     *
+     * @param m 消息内容
+     * @param kv 扩展键值对
      * @hidden
      */
     public static void init(String m, Object... kv) {
@@ -216,6 +237,9 @@ public final class LinLog {
 
     /**
      * 输出 OP 通道日志，推送给在线 OP 或进入 OP 队列
+     *
+     * @param m 消息内容
+     * @param kv 扩展键值对
      * @hidden
      */
     public static void op(String m, Object... kv) {
@@ -224,6 +248,9 @@ public final class LinLog {
 
     /**
      * 输出 STARTUP 通道日志，用于服务器启动阶段的延迟输出
+     *
+     * @param m 消息内容
+     * @param kv 扩展键值对
      * @hidden
      */
     public static void startup(String m, Object... kv) {

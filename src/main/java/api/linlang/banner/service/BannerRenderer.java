@@ -6,11 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/** @hidden */
+/**
+ * Banner 的底层文本渲染器。
+ *
+ * @hidden
+ */
 public final class BannerRenderer {
     private BannerRenderer() {}
 
-    /** 渲染 initials 的 ASCII 字，并打印固定信息块。行输出用 out.accept(line) */
+    /**
+     * 渲染 ASCII 缩写和固定信息块，并逐行输出。
+     *
+     * @param font ASCII 字体
+     * @param opt 铭牌选项
+     * @param out 行输出函数
+     */
     public static void print(AsciiFont font, BannerOptions opt, Consumer<String> out) {
         if (font == null || opt == null || out == null) return;
 
@@ -41,7 +51,13 @@ public final class BannerRenderer {
         out.accept(" ");
     }
 
-    /** 仅渲染单词的 ASCII 行集合 */
+    /**
+     * 将单词渲染为 ASCII 行集合。
+     *
+     * @param font ASCII 字体
+     * @param word 待渲染单词
+     * @return 按从上到下顺序排列的文本行
+     */
     public static List<String> renderWord(AsciiFont font, String word) {
         int h = font.height();
         List<String> out = new ArrayList<>(h);

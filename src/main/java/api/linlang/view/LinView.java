@@ -9,40 +9,85 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * 交互服务（GUI）入口。
+ * LinView 界面服务入口。
  *
- * <p>交互服务以“模板 View + 会话 Session”为核心模型：
- * - View：静态定义（可来自 yml/json）
- * - Session：每次打开的运行态实例（按玩家隔离）
- * </p>
+ * <p>视图定义来自 YAML 或 JSON 资源，{@link GuiSession} 保存单个 viewer 的状态、
+ * 静态控件覆盖和动态区绑定。Hook 与 Source 应在打开相关视图之前注册。</p>
  */
 public interface LinView {
 
-    /** 打开一个视图（为指定 viewer 创建或复用 session）。 */
+    /**
+     * 为指定 viewer 打开视图并创建新会话。
+     *
+     * @param viewer 平台 viewer，例如 Bukkit Player
+     * @param viewId 视图 ID
+     * @return 新创建的界面会话
+     */
     GuiSession open(Object viewer, String viewId);
 
-    /** 打开视图，并在打开前应用一段 state patch。 */
+    /**
+     * 打开视图，并在首次渲染和 Source 加载之前初始化会话状态。
+     *
+     * @param viewer 平台 viewer
+     * @param viewId 视图 ID
+     * @param patch 状态初始化回调，可为 {@code null}
+     * @return 新创建的界面会话
+     */
     GuiSession open(Object viewer, String viewId, Consumer<GuiState> patch);
 
-    /** 查找已打开的 session（若不存在返回 null）。 */
+    /**
+     * 查找 viewer 当前的活动会话。
+     *
+     * @param viewer 平台 viewer
+     * @return 活动会话；不存在时为 {@code null}
+     */
     GuiSession session(Object viewer);
 
-    /** 关闭 viewer 当前打开的 session（若有）。 */
+    /**
+     * 关闭 viewer 当前的活动会话。
+     *
+     * @param viewer 平台 viewer
+     */
     void close(Object viewer);
 
-    /** 热重载视图定义（从磁盘重新加载/编译）。 */
+    /**
+     * 清除全部视图缓存，并使用新定义重新打开受影响的活动会话。
+     */
     void reload();
 
-    /** 仅重载指定 viewId。 */
+    /**
+     * 清除指定视图的缓存，并重新打开使用该视图的活动会话。
+     *
+     * @param viewId 视图 ID
+     */
     void reload(String viewId);
 
-    /** 注册 hook（由按钮动作调用，执行业务逻辑）。 */
+    /**
+     * 注册由 {@code hook} 动作调用的业务处理器。
+     *
+     * @param hookId Hook ID
+     * @param hook 业务处理器
+     * @return 当前界面服务
+     */
     LinView hook(String hookId, GuiHook hook);
 
-    /** 注册数据源（用于动态区填充）。 */
+    /**
+     * 注册用于填充动态区的数据源。
+     *
+     * @param sourceId Source ID
+     * @param source 数据源
+     * @return 当前界面服务
+     */
     LinView source(String sourceId, GuiSource source);
 
-    /** 便捷：打开前设置 state 的常见入口。 */
+    /**
+     * 使用映射初始化会话状态并打开视图。
+     *
+     * @param viewer 平台 viewer
+     * @param viewId 视图 ID
+     * @param initState 初始状态；为 {@code null} 时按空状态处理
+     * @return 新创建的界面会话
+     */
     default GuiSession open(Object viewer, String viewId, Map<String, Object> initState) {
         return open(viewer, viewId, s -> { if (initState != null) s.putAll(initState); });
     }

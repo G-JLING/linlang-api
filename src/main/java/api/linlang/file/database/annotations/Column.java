@@ -7,31 +7,29 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 声明为 Column
- *
- * <p>此注解应用于字段</p>
+ * 配置实体字段对应的数据库列。
  */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface Column {
 
     /**
-     * 名称
+     * @return 列名；空字符串表示使用字段名
      */
     String name() default "";
 
     /**
-     * 最大长度
+     * @return 最大长度；零表示由实现或数据库类型决定
      */
     int length() default 0;
 
     /**
-     * 是否可空
+     * @return 是否允许数据库列为 {@code NULL}
      */
     boolean nullable() default true;
 
     /**
-     * 默认值
+     * @return 数据库默认值表达式；空字符串表示不声明默认值
      */
     String defaultValue() default "";
 }

@@ -9,22 +9,21 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 指定配置文件的版本号
+ * 声明配置对象当前支持的文档版本。
  *
- * <p>此注解应用于类和字段</p>
- *
- * Linlang 框架可根据版本号触发对应的 {@link Migrator} 执行迁移。
+ * <p>读取旧版本文件时，配置服务会在填充对象之前执行已注册的 {@link Migrator}。
+ * 文件版本高于当前版本或迁移链不完整时，绑定会失败。</p>
  */
 @Retention(RUNTIME)
 @Target({TYPE})
 public @interface ConfigVersion {
     /**
-     * 当前配置文件版本号
+     * @return 当前配置文件版本号
      */
     int value();
 
     /**
-     * 配置文件中保存版本号的键
+     * @return 配置文档中保存版本号的键
      */
     String key() default "_linlang-version";
 }

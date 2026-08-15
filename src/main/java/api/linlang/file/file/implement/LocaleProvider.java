@@ -1,12 +1,7 @@
-// called.linlang.annotations.file.LocaleProvider
 package api.linlang.file.file.implement;
 
-import java.util.List;
-
 /**
- * 语言对象接口
- *
- * <p>在 <a href="https://jling.me/p/linlang/file/file/语言文件">语言文件</a> 页面中，您可以了解什么是语言对象，这是一个琳琅专有名词</p>
+ * 以代码方式向语言对象写入单个 locale 内容的提供者。
  *
  * @param <T> 语言对象类
  */
@@ -20,17 +15,16 @@ public interface LocaleProvider<T> {
     String locale();
 
     /**
-     * 使当前语言提供者实现的语言对象类中的 Key 赋值
-     *
-     * <p>在 <a herf="https://jling.me/p/linlang/file/file/语言服务">语言服务</a> 页面中，您可以看到使用示例</p>
+     * 将该 locale 的文本写入语言对象。
      *
      * @param keys 语言对象类
      */
     void define(T keys);
 
     /**
-     * 返回承载注释的类（结构需与键结构类同形）。为 null 表示无注释。
+     * 兼容旧运行时的扩展入口；当前文件服务不通过该方法生成语言文件注释。
      *
+     * @return 旧版注释结构类；默认返回 {@code null}
      * @hidden
      */
     default Class<?> commentsType() {

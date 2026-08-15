@@ -6,33 +6,64 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * 动态区类型
- *
- * 动态区是一组按顺序排列的可填充空位
+ * 一组按布局顺序排列、可绑定 {@link GuiRow} 的动态槽位。
  */
 public interface DynamicAreaView {
 
-    /** 动态区 id。 */
+    /**
+     * @return 动态区 ID
+     */
     String id();
 
-    /** 容量（slot 数量）。 */
+    /**
+     * @return 动态区槽位数量
+     */
     int capacity();
 
-    /** 清空该区域（解绑 rowRef）。 */
+    /**
+     * 清空动态区并解除全部行绑定。
+     *
+     * @return 当前动态区
+     */
     DynamicAreaView clear();
 
-    /** 顺序填充：从第 0 个槽位开始。 */
+    /**
+     * 按区域的 overflow 策略顺序填充行。
+     *
+     * @param rows 待填充行；为 {@code null} 时仅清空区域
+     * @return 当前动态区
+     */
     DynamicAreaView fill(List<? extends GuiRow> rows);
 
-    /** 设置某一个 index 的内容（0 <= index < capacity）。 */
+    /**
+     * 设置指定区域索引的行。
+     *
+     * @param index 从零开始的区域索引
+     * @param row 新行；为 {@code null} 时清除该位置
+     * @return 当前动态区；索引越界时不执行操作
+     */
     DynamicAreaView set(int index, GuiRow row);
 
-    /** 追加一个元素（若超出容量，按实现的 overflow 策略处理）。 */
+    /**
+     * 在当前绑定末尾追加一行。
+     *
+     * @param row 待追加行
+     * @return 当前动态区；容量已满时不执行操作
+     */
     DynamicAreaView push(GuiRow row);
 
-    /** 获取某个 index 的绑定（可能为 null）。 */
+    /**
+     * 获取指定区域索引的行绑定。
+     *
+     * @param index 从零开始的区域索引
+     * @return 行绑定；未绑定或索引越界时为 {@code null}
+     */
     GuiRow get(int index);
 
-    /** 遍历当前绑定。 */
+    /**
+     * 按区域索引遍历当前行绑定。
+     *
+     * @param consumer 接收区域索引和行的回调
+     */
     void forEach(BiConsumer<Integer, GuiRow> consumer);
 }
