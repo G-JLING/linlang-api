@@ -1,5 +1,7 @@
 package api.linlang.command;
 
+import api.linlang.file.file.LangText;
+
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -67,6 +69,32 @@ public interface LinCommand {
     }
 
     /**
+     * 使用语言字段引用注册命令。
+     *
+     * <p>命令描述和参数标签在生成帮助及用法文本时解析，因此语言切换或语言文件重载后
+     * 不需要重新注册命令。参数标签由参数名匹配</p>
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param perm 权限要求，可为 {@code null}
+     * @param target 允许的执行目标
+     * @param i18n 命令国际化文本，可为 {@code null}
+     * @return 当前命令服务
+     */
+    default LinCommand register(
+            String spec,
+            LinCommand.CommandExecutor exec,
+            Permission perm,
+            ExecTarget target,
+            I18n i18n
+    ) {
+        if (i18n == null) {
+            return registerLazy(spec, exec, perm, target, null, Map.of());
+        }
+        return registerLazy(spec, exec, perm, target, i18n.description(), i18n.labels());
+    }
+
+    /**
      * 注册不包含参数标签的静态国际化命令。
      *
      * @param spec 命令规范字符串
@@ -108,6 +136,16 @@ public interface LinCommand {
          */
         static I18nSupplier of(Supplier<String> s) {
             return locale -> s == null ? null : s.get();
+        }
+
+        /**
+         * 将语言字段引用包装为国际化提供者。
+         *
+         * @param text 语言字段引用，可为 {@code null}
+         * @return 按渲染 locale 解析引用的提供者
+         */
+        static I18nSupplier from(LangText text) {
+            return locale -> text == null ? null : text.resolve(locale);
         }
 
         /**
@@ -192,6 +230,17 @@ public interface LinCommand {
         LazyLabels add(String paramName, I18nSupplier supplier);
 
         /**
+         * 添加语言字段引用。
+         *
+         * @param paramName 命令参数名
+         * @param text 语言字段引用
+         * @return 当前构建器
+         */
+        default LazyLabels add(String paramName, LangText text) {
+            return add(paramName, I18nSupplier.from(text));
+        }
+
+        /**
          * @return 参数名到文本提供者的映射
          */
         Map<String, I18nSupplier> build();
@@ -215,6 +264,87 @@ public interface LinCommand {
             }
             @Override
             public Map<String, I18nSupplier> build() { return m; }
+        }
+    }
+
+    /**
+     * 命令描述与参数标签的动态国际化文本。
+     *
+     * <p>该构建器保存 {@link LangText} 的解析过程，而不是注册时的字符串值。</p>
+     */
+    interface I18n {
+
+        /**
+         * 设置命令描述。
+         *
+         * @param text 语言字段引用
+         * @return 当前构建器
+         */
+        I18n desc(LangText text);
+
+        /**
+         * 设置参数标签。
+         *
+         * @param paramName 命令规范中的参数名
+         * @param text 语言字段引用
+         * @return 当前构建器
+         */
+        I18n label(String paramName, LangText text);
+
+        /**
+         * 返回命令描述提供者。
+         *
+         * @return 描述提供者，可为 {@code null}
+         */
+        I18nSupplier description();
+
+        /**
+         * 返回参数标签提供者。
+         *
+         * @return 不可修改的参数标签映射
+         */
+        Map<String, I18nSupplier> labels();
+
+        /**
+         * 创建命令国际化文本构建器。
+         *
+         * @return 新构建器
+         */
+        static I18n create() {
+            return new Impl();
+        }
+
+        /**
+         * {@link I18n} 的默认实现。
+         */
+        final class Impl implements I18n {
+            private I18nSupplier description;
+            private final Map<String, I18nSupplier> labels = new LinkedHashMap<>();
+
+            @Override
+            public I18n desc(LangText text) {
+                this.description = I18nSupplier.from(Objects.requireNonNull(text, "text"));
+                return this;
+            }
+
+            @Override
+            public I18n label(String paramName, LangText text) {
+                if (paramName == null || paramName.isBlank()) {
+                    throw new IllegalArgumentException("paramName");
+                }
+                labels.put(paramName, I18nSupplier.from(Objects.requireNonNull(text, "text")));
+                return this;
+            }
+
+            @Override
+            public I18nSupplier description() {
+                return description;
+            }
+
+            @Override
+            public Map<String, I18nSupplier> labels() {
+                return Collections.unmodifiableMap(new LinkedHashMap<>(labels));
+            }
         }
     }
 

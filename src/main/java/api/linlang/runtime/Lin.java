@@ -15,7 +15,7 @@ public final class Lin {
      *
      * @hidden
      */
-    public static final String API_VERSION = "2.0.0.0";
+    public static final String API_VERSION = "2.1.0.0";
 
     /**
      * 尝试通过运行时提供的 factory 方法为指定 platformContext 创建一个 per-plugin 的 facade。

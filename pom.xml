@@ -5,7 +5,7 @@
 
     <groupId>me.jling</groupId>
     <artifactId>linlang-api</artifactId>
-    <version>2.0.0.0-SNAPSHOT</version>
+    <version>2.1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Linlang-API</name>
     <description>Platform-agnostic interfaces and bootstrap for Linlang runtime.</description>
@@ -78,8 +78,8 @@
 
                     <header><![CDATA[
       <div class="jl-doc-header">
-        <a href="https://jling.me/linlang-wiki" title="返回琳琅说明文档">返回说明文档</a>
-        <a href="https://jling.me" title="返回 JLING 首页">返回主站</a>
+        <a href="https://jling.me/linlang-wiki" title="返回琳琅说明文档">返回说明文档 </a>
+        <a href="https://jling.me" title="返回 JLING 首页"> 返回主站</a>
       </div>
     ]]></header>
 

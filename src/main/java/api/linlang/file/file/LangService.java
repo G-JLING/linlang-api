@@ -6,7 +6,9 @@ import java.util.Set;
  * 将语言资源文件绑定为可直接读取的 Java 对象。
  *
  * <p>活动语言由 Linlang 的全局语言参数决定。每个语言包可以通过注解声明默认语言、
- * 文件格式、归一化策略和写回策略。</p>
+ * 文件格式、归一化策略和写回策略。语言对象既可以使用保存当前值快照的 {@link String}
+ * 和普通集合字段，也可以使用 {@link LangText}、{@link LangList} 与 {@link LangMap}
+ * 声明在读取时解析最新值的稳定引用。</p>
  */
 public interface LangService {
 
@@ -15,7 +17,7 @@ public interface LangService {
      *
      * @param keysClass 语言对象类
      * @param <T> 语言对象类型
-     * @return 由服务管理的活动语言对象
+     * @return 由服务管理的活动语言对象；其中的语言引用字段保持稳定
      */
     <T> T bind(Class<T> keysClass);
 
