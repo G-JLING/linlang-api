@@ -1,4 +1,4 @@
 /**
- * <p>信息发送服务</p>
+ * 一次性文本消息的定义与投递服务。
  */
 package api.linlang.messenger;

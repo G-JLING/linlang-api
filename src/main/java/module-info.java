@@ -25,6 +25,8 @@ module linlang.api {
     exports api.linlang.command;
     exports api.linlang.command.message;
     exports api.linlang.messenger;
+    exports api.linlang.messenger.transport;
+    exports api.linlang.text;
     exports api.linlang.audit;
     exports api.linlang.banner;
     exports api.linlang.banner.provider;

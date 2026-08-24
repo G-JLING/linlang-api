@@ -1,5 +1,7 @@
 package api.linlang.file.file;
 
+import api.linlang.text.TextSource;
+
 import java.util.Objects;
 
 /**
@@ -11,7 +13,7 @@ import java.util.Objects;
  * <p>语言对象中的字段应通过 {@link #of(String)} 提供缺失键的默认值。字段完成绑定前，
  * 该引用解析为默认值；完成绑定后，语言服务会为字段安装受管理的引用。</p>
  */
-public interface LangText extends LangValue<String> {
+public interface LangText extends LangValue<String>, TextSource {
 
     /**
      * 返回字段在语言对象中的路径键。
