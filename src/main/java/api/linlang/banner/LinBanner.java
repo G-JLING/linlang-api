@@ -33,7 +33,7 @@ public final class LinBanner {
      * @param opt 铭牌选项
      */
     public static void print(BannerOptions opt) {
-        print(LinLog::banr, opt);
+        print(LinLog::banner, opt);
     }
 
     /**

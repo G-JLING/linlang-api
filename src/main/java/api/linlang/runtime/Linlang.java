@@ -1,5 +1,7 @@
 package api.linlang.runtime;
 
+import api.linlang.audit.LinAudit;
+import api.linlang.audit.LinLog;
 import api.linlang.command.LinCommand;
 import api.linlang.file.LinFile;
 import api.linlang.messenger.LinMessenger;
@@ -56,6 +58,18 @@ public interface Linlang {
      * @return 可用的 LinView 实例
      */
     LinView linView();
+
+    /**
+     * 返回当前插件绑定的日志、审计与问题报告入口。
+     *
+     * <p>该入口已经由运行时完成初始化，其普通日志、审计事件和问题报告
+     * 可以分别输出到独立文件。</p>
+     *
+     * @return 当前插件的统一审计入口
+     */
+    default LinAudit linAudit() {
+        return LinLog.forOwner(getClass());
+    }
 
     /*
       ########################################  服务门面  ########################################

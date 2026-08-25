@@ -1,14 +1,20 @@
-package api.linlang.audit;
+package api.linlang.audit.log;
+
+import api.linlang.audit.LinAudit;
+import api.linlang.audit.LinLog;
 
 /**
  * 绑定到平台的具体琳琅日志服务实现
  *
- * <p>琳琅日志服务提供多种常用的占位符使用方式：</p>
+ * <p>琳琅日志服务提供多种常用的参数使用方式：</p>
  * <ul>
  *     <li>空占位符：按 <code>{}</code>顺序填入参数值</li>
  *     <li>准确占位符：用于格式化字符串中的精准替换</li>
- *     <li>尾部追加：在消息末尾直接附加键值对信息</li>
+ *     <li>尾部字段：未用于占位符的键值对会附加到消息末尾</li>
  * </ul>
+ *
+ * <p>{@code Throwable} 应通过带异常参数的 WARN 或 ERROR 重载传入，
+ * 以便运行时保留完整原因链。</p>
  */
 public interface LinLogger {
 
@@ -36,6 +42,15 @@ public interface LinLogger {
      * @param kv  键值对参数，用于填充消息中的占位符
      */
     void warn(String msg, Object... kv);
+
+    /**
+     * 输出 WARN 级别日志并保留异常原因链。
+     *
+     * @param msg 日志消息，支持占位符格式
+     * @param t   异常对象
+     * @param kv  占位参数或扩展字段
+     */
+    void warn(String msg, Throwable t, Object... kv);
 
     /**
      * 输出 ERROR 级日志，可选附带异常
@@ -89,6 +104,7 @@ public interface LinLogger {
      *
      * @param event 审计事件名称
      * @param kv    审计事件相关的键值对数据
+     * <p>新代码优先使用 {@link LinAudit#record(String, Object...)}。</p>
      */
     void audit(String event, Object... kv);
 

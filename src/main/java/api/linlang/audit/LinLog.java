@@ -1,375 +1,327 @@
 package api.linlang.audit;
 
+import api.linlang.audit.event.AuditEvent;
+import api.linlang.audit.log.LinLogger;
+import api.linlang.audit.log.LogChannel;
+import api.linlang.audit.log.LogLevel;
+import api.linlang.audit.log.LogRecord;
+import api.linlang.audit.problem.LinProblem;
+import api.linlang.audit.problem.LinProblemReporter;
+import api.linlang.audit.problem.ProblemDefinition;
+
 import java.util.Objects;
+import java.util.List;
+import java.util.Optional;
 
 /**
- * 审计与日志静态门面
- * <p>初始化琳琅运行时后，通过此类安装为具体平台实现 {@link LinLogger}</p>
+ * 日志、审计与问题报告的静态兼容门面。
+ *
+ * <p>插件业务代码优先通过 {@code lin.linAudit()} 取得绑定当前插件的统一入口。
+ * 本类保留给运行时内部代码和旧版本调用方式使用。</p>
  */
 public final class LinLog {
 
     /**
-     * 日志提供者 SPI
+     * 日志与审计提供者 SPI。
      *
-     * <p>由运行时在启动时安装具体实现。业务代码不应直接实现或使用本接口，
-     * 只需通过 {@link LinLog} 和 {@link LinLogger} 进行日志与审计输出</p>
+     * <p>运行时只需安装一个 Provider。Provider 根据 owner 将记录路由到不同插件，
+     * 三种记录可以分别写入普通日志、审计日志和问题日志。</p>
      *
      * @hidden
      */
     public interface Provider {
-        /**
-         * 输出一条日志（无 owner 上下文，通常视为运行时全局日志）。
-         *
-         * @param level 日志级别，如 DEBUG/INFO/WARN/ERROR/OP/STARTUP/INIT
-         * @param msg   消息内容
-         * @param kv    扩展键值对：key, value, key, value...
-         */
-        void log(String level, String msg, Object... kv);
 
-        /**
-         * 输出一条日志（带 owner 上下文，例如某个插件或组件）。
-         *
-         * @param owner owner 线索（如插件实例或类对象）
-         * @param level 日志级别
-         * @param msg   消息内容
-         * @param kv    扩展键值对
-         */
-        default void log(Object owner, String level, String msg, Object... kv) {
-            log(level, msg, kv);
+        void publish(Object owner, LogRecord record);
+
+        void publishAudit(Object owner, AuditEvent event);
+
+        void publishProblem(Object owner, LinProblem problem);
+
+        default Optional<ProblemDefinition> lookupProblem(String code) {
+            return Optional.empty();
         }
 
-        /**
-         * 记录一条审计事件（无 owner）。
-         *
-         * @param event 事件名称
-         * @param kv    扩展键值对
-         */
-        void audit(String event, Object... kv);
-
-        /**
-         * 记录一条审计事件（带 owner）。
-         *
-         * @param owner owner 线索（如插件实例或类对象）
-         * @param event 事件名称
-         * @param kv    扩展键值对
-         */
-        default void audit(Object owner, String event, Object... kv) {
-            audit(event, kv);
+        default List<ProblemDefinition> listProblems() {
+            return List.of();
         }
 
-        /**
-         * 刷新已缓存的 STARTUP 日志到控制台。
-         */
-        default void flushStartupToConsole() {}
+        default void flush(Object owner) {}
 
-        /**
-         * 刷新已缓存的 OP 日志到所有在线 OP。
-         */
-        default void flushOpToOnlineOps() {}
+        default void flushStartupToConsole(Object owner) {}
 
-        /**
-         * 将已缓存的 OP 日志输出到指定对象（对象类型由具体实现决定）。
-         *
-         * @param op 目标对象，例如 Bukkit 的 Player
-         */
-        default void flushOpTo(Object op) {}
+        default void flushOpToOnlineOps(Object owner) {}
+
+        default void flushOpTo(Object owner, Object op) {}
     }
 
-    /** 当前安装的 Provider，默认使用空实现（不输出任何内容）。 */
-    private static volatile Provider P = new Noop();
+    private static final Provider NOOP = new Noop();
+    private static volatile Provider provider = NOOP;
 
     /**
-     * 安装日志提供者。
+     * 安装运行时 Provider。
      *
-     * <p>运行时在启动阶段调用本方法，将平台相关实现注入。
-     * 若传入 {@code null}，则回退为不做任何输出的空实现。</p>
-     *
-     * @param p 要安装的 Provider 实例
+     * @param next 新 Provider，传入 null 时恢复为空实现
+     * @hidden
      */
-    public static void install(Provider p) {
-        P = (p == null ? new Noop() : p);
+    public static void install(Provider next) {
+        provider = next == null ? NOOP : next;
     }
 
-    // ----------------------------------------------------------------------
-    // 按 owner 获取 Logger
-    // ----------------------------------------------------------------------
+    /**
+     * 仅当指定 Provider 仍是当前实现时卸载它。
+     *
+     * @param expected 预期的当前 Provider
+     * @hidden
+     */
+    public static void uninstall(Provider expected) {
+        if (provider == expected) {
+            provider = NOOP;
+        }
+    }
 
     /**
-     * 为指定业务类创建一个绑定 owner 的 {@link LinLogger}。
+     * 为指定业务类创建统一审计入口。
      *
-     *
-     * <p>Provider 可通过 {@code ownerHint} 反推出插件归属</p>
-     *
-     * @param ownerHint 作为 owner 线索的类，通常是插件主类或业务类自身
-     * @return 绑定到该 owner 的日志接口
+     * @param ownerHint 插件主类或业务类
+     * @return 绑定该 owner 的统一入口
      */
-    public static LinLogger getLogger(Class<?> ownerHint) {
-        Objects.requireNonNull(ownerHint, "ownerHint");
-        final Object owner = ownerHint;
+    public static LinAudit getAudit(Class<?> ownerHint) {
+        return forOwner(Objects.requireNonNull(ownerHint, "ownerHint"));
+    }
 
-        return new LinLogger() {
+    /**
+     * 为平台 owner 创建统一审计入口。
+     *
+     * @param ownerHint 平台 owner 或业务类
+     * @return 绑定该 owner 的统一入口
+     * @hidden
+     */
+    public static LinAudit forOwner(Object ownerHint) {
+        LinLogger logger = loggerFor(ownerHint);
+        LinProblemReporter problems = new LinProblemReporter() {
             @Override
-            public void debug(String msg, Object... kv) {
-                P.log(owner, "DEBUG", msg, kv);
+            public void report(LinProblem problem) {
+                provider.publishProblem(ownerHint, Objects.requireNonNull(problem, "problem"));
             }
 
             @Override
-            public void info(String msg, Object... kv) {
-                P.log(owner, "INFO", msg, kv);
+            public Optional<ProblemDefinition> lookup(String code) {
+                if (code == null || code.isBlank()) return Optional.empty();
+                return provider.lookupProblem(code.trim());
             }
 
             @Override
-            public void warn(String msg, Object... kv) {
-                P.log(owner, "WARN", msg, kv);
+            public List<ProblemDefinition> list() {
+                return List.copyOf(provider.listProblems());
+            }
+        };
+        return new LinAudit() {
+            @Override
+            public LinLogger logger() {
+                return logger;
             }
 
             @Override
-            public void error(String msg, Throwable t, Object... kv) {
-                Object[] kv2 = kv;
-                if (t != null) kv2 = append(kv, "err", t.toString());
-                P.log(owner, "ERROR", msg, kv2);
+            public LinProblemReporter problem() {
+                return problems;
             }
 
             @Override
-            public void op(String msg, Object... kv) {
-                P.log(owner, "OP", msg, kv);
+            public void record(AuditEvent event) {
+                provider.publishAudit(ownerHint, Objects.requireNonNull(event, "event"));
             }
 
             @Override
-            public void startup(String msg, Object... kv) {
-                P.log(owner, "STARTUP", msg, kv);
-            }
-
-            @Override
-            public void init(String msg, Object... kv) {
-                P.log(owner, "INIT", msg, kv);
-            }
-
-            @Override
-            public void audit(String event, Object... kv) {
-                P.audit(owner, event, kv);
+            public void flush() {
+                provider.flush(ownerHint);
             }
         };
     }
 
-    // ----------------------------------------------------------------------
-    // 静态日志方法（runtime 全局）
-    // ----------------------------------------------------------------------
+    /**
+     * 为指定业务类创建普通日志成员。
+     *
+     * @param ownerHint 插件主类或业务类
+     * @return 绑定该 owner 的日志成员
+     */
+    public static LinLogger getLogger(Class<?> ownerHint) {
+        return loggerFor(Objects.requireNonNull(ownerHint, "ownerHint"));
+    }
+
+    private static LinLogger loggerFor(Object owner) {
+        return new LinLogger() {
+            @Override
+            public void debug(String msg, Object... values) {
+                publish(owner, LogLevel.DEBUG, LogChannel.STANDARD, msg, null, values);
+            }
+
+            @Override
+            public void info(String msg, Object... values) {
+                publish(owner, LogLevel.INFO, LogChannel.STANDARD, msg, null, values);
+            }
+
+            @Override
+            public void warn(String msg, Object... values) {
+                publish(owner, LogLevel.WARN, LogChannel.STANDARD, msg, null, values);
+            }
+
+            @Override
+            public void warn(String msg, Throwable cause, Object... values) {
+                publish(owner, LogLevel.WARN, LogChannel.STANDARD, msg, cause, values);
+            }
+
+            @Override
+            public void error(String msg, Throwable cause, Object... values) {
+                publish(owner, LogLevel.ERROR, LogChannel.STANDARD, msg, cause, values);
+            }
+
+            @Override
+            public void op(String msg, Object... values) {
+                publish(owner, LogLevel.INFO, LogChannel.OP, msg, null, values);
+            }
+
+            @Override
+            public void startup(String msg, Object... values) {
+                publish(owner, LogLevel.INFO, LogChannel.STARTUP, msg, null, values);
+            }
+
+            @Override
+            public void init(String msg, Object... values) {
+                publish(owner, LogLevel.INFO, LogChannel.INIT, msg, null, values);
+            }
+
+            @Override
+            public void audit(String event, Object... fields) {
+                provider.publishAudit(owner, AuditEvent.of(event, fields));
+            }
+
+            @Override
+            public void flushStartupToConsole() {
+                provider.flushStartupToConsole(owner);
+            }
+
+            @Override
+            public void flushOpToOnlineOps() {
+                provider.flushOpToOnlineOps(owner);
+            }
+
+            @Override
+            public void flushOpTo(Object op) {
+                provider.flushOpTo(owner, op);
+            }
+        };
+    }
+
+    public static void debug(String message, Object... values) {
+        publish(null, LogLevel.DEBUG, LogChannel.STANDARD, message, null, values);
+    }
+
+    public static void info(String message, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.STANDARD, message, null, values);
+    }
+
+    public static void warn(String message, Object... values) {
+        publish(null, LogLevel.WARN, LogChannel.STANDARD, message, null, values);
+    }
+
+    public static void warn(String message, Throwable cause, Object... values) {
+        publish(null, LogLevel.WARN, LogChannel.STANDARD, message, cause, values);
+    }
+
+    public static void error(String message, Throwable cause, Object... values) {
+        publish(null, LogLevel.ERROR, LogChannel.STANDARD, message, cause, values);
+    }
+
+    public static void error(String message, Object... values) {
+        error(message, null, values);
+    }
+
+    public static void init(String message, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.INIT, message, null, values);
+    }
+
+    public static void op(String message, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.OP, message, null, values);
+    }
+
+    public static void op(Object owner, String message, Object... values) {
+        publish(owner, LogLevel.INFO, LogChannel.OP, message, null, values);
+    }
+
+    public static void startup(String message, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.STARTUP, message, null, values);
+    }
+
+    public static void startup(Object owner, String message, Object... values) {
+        publish(owner, LogLevel.INFO, LogChannel.STARTUP, message, null, values);
+    }
+
+    public static void init(Object owner, String message, Object... values) {
+        publish(owner, LogLevel.INFO, LogChannel.INIT, message, null, values);
+    }
+
+    public static void banner(String message) {
+        publish(null, LogLevel.INFO, LogChannel.BANNER, message, null);
+    }
 
     /**
-     * 输出 DEBUG 级别日志。
+     * 旧版 Banner 方法。
      *
-     * @param m 消息内容
-     * @param kv 扩展键值对
+     * @param message Banner 文本
+     * @deprecated 使用 {@link #banner(String)}
      * @hidden
      */
-    public static void debug(String m, Object... kv) {
-        P.log("DEBUG", m, kv);
+    @Deprecated
+    public static void banr(String message) {
+        banner(message);
     }
 
-    /**
-     * 输出 INFO 级别日志。
-     *
-     * @param m 消息内容
-     * @param kv 扩展键值对
-     * @hidden
-     */
-    public static void info(String m, Object... kv) {
-        P.log("INFO", m, kv);
+    public static void audit(String event, Object... fields) {
+        provider.publishAudit(null, AuditEvent.of(event, fields));
     }
 
-    /**
-     * 输出 Banner 通道日志。
-     *
-     * @param s 单行铭牌文本
-     * @hidden
-     */
-    public static void banr(String s) {
-        P.log("BANR", s);
+    public static void audit(Object owner, String event, Object... fields) {
+        provider.publishAudit(owner, AuditEvent.of(event, fields));
     }
 
-    /**
-     * 输出 WARN 级别日志。
-     *
-     * @param m 消息内容
-     * @param kv 扩展键值对
-     * @hidden
-     */
-    public static void warn(String m, Object... kv) {
-        P.log("WARN", m, kv);
+    public static void problem(LinProblem problem) {
+        provider.publishProblem(null, Objects.requireNonNull(problem, "problem"));
     }
 
-    /**
-     * 输出 INIT 日志，通常用于模块 / 运行时初始化阶段。
-     *
-     * @param m 消息内容
-     * @param kv 扩展键值对
-     * @hidden
-     */
-    public static void init(String m, Object... kv) {
-        P.log("INIT", m, kv);
+    public static void flush() {
+        provider.flush(null);
     }
 
-    /**
-     * 输出 ERROR 日志，可选附带异常（无 owner）
-     *
-     * @param m   消息内容
-     * @param t   异常对象，可为 {@code null}
-     * @param kv  扩展键值对
-     * @hidden
-     */
-    public static void error(String m, Throwable t, Object... kv) {
-        Object[] kv2 = kv;
-        if (t != null) kv2 = append(kv, "err", t.toString());
-        P.log("ERROR", m, kv2);
-    }
-
-    /**
-     * 便捷重载：无异常时只传消息和 kv
-     *
-     * @param m  消息内容
-     * @param kv 扩展键值对
-     * @hidden
-     */
-    public static void error(String m, Object... kv) {
-        error(m, null, kv);
-    }
-
-    /**
-     * 输出 OP 通道日志，推送给在线 OP 或进入 OP 队列
-     *
-     * @param m 消息内容
-     * @param kv 扩展键值对
-     * @hidden
-     */
-    public static void op(String m, Object... kv) {
-        P.log("OP", m, kv);
-    }
-
-    /**
-     * 输出 STARTUP 通道日志，用于服务器启动阶段的延迟输出
-     *
-     * @param m 消息内容
-     * @param kv 扩展键值对
-     * @hidden
-     */
-    public static void startup(String m, Object... kv) {
-        P.log("STARTUP", m, kv);
-    }
-
-    // --- 带 owner 的静态辅助 ---
-
-    /**
-     * 针对指定 owner 输出 OP 日志。
-     *
-     * @param owner owner 线索
-     * @param m     消息内容
-     * @param kv    扩展键值对
-     */
-    public static void op(Object owner, String m, Object... kv) {
-        P.log(owner, "OP", m, kv);
-    }
-
-    /**
-     * 针对指定 owner 输出 STARTUP 日志。
-     *
-     * @param owner owner 线索
-     * @param m     消息内容
-     * @param kv    扩展键值对
-     */
-    public static void startup(Object owner, String m, Object... kv) {
-        P.log(owner, "STARTUP", m, kv);
-    }
-
-    /**
-     * 针对指定 owner 输出 INIT 日志。
-     *
-     * @param owner owner 线索
-     * @param m     消息内容
-     * @param kv    扩展键值对
-     */
-    public static void init(Object owner, String m, Object... kv) {
-        P.log(owner, "INIT", m, kv);
-    }
-
-    // ----------------------------------------------------------------------
-    // 审计
-    // ----------------------------------------------------------------------
-
-    /**
-     * 记录一条审计事件
-     *
-     * @param event 事件名称
-     * @param kv    扩展键值对
-     * @hidden
-     */
-    public static void audit(String event, Object... kv) {
-        P.audit(event, kv);
-    }
-
-    /**
-     * 记录一条审计事件
-     *
-     * @param owner owner 线索
-     * @param event 事件名称
-     * @param kv    扩展键值对
-     */
-    public static void audit(Object owner, String event, Object... kv) {
-        P.audit(owner, event, kv);
-    }
-
-    // ----------------------------------------------------------------------
-    // Flush 辅助
-    // ----------------------------------------------------------------------
-
-    /**
-     * 刷新 STARTUP 队列到控制台
-     */
     public static void flushStartupToConsole() {
-        P.flushStartupToConsole();
+        provider.flushStartupToConsole(null);
     }
 
-    /**
-     * 刷新 OP 队列到所有在线 OP
-     */
     public static void flushOpToOnlineOps() {
-        P.flushOpToOnlineOps();
+        provider.flushOpToOnlineOps(null);
     }
 
-    /**
-     * 将 OP 队列发送到指定对象（具体类型由 Provider 实现约定）
-     *
-     * @param op 目标对象，例如 Bukkit 的 Player
-     */
     public static void flushOpTo(Object op) {
-        P.flushOpTo(op);
+        provider.flushOpTo(null, op);
     }
 
-    // ----------------------------------------------------------------------
-    // 内部工具
-    // ----------------------------------------------------------------------
+    private static void publish(Object owner,
+                                LogLevel level,
+                                LogChannel channel,
+                                String message,
+                                Throwable cause,
+                                Object... values) {
+        provider.publish(owner, LogRecord.of(level, channel, message, cause, values));
+    }
 
-    /** 空实现 Provider：不输出任何日志与审计。
-     * @hidden
-     */
     private static final class Noop implements Provider {
-        @Override public void log(String l, String m, Object... kv) {}
-        @Override public void audit(String e, Object... kv) {}
-    }
+        @Override
+        public void publish(Object owner, LogRecord record) {}
 
-    /**
-     * 将两个可变参数数组拼接为一个新数组。
-     *
-     * @param a 第一个数组
-     * @param b 第二个数组
-     * @return 新数组，包含 a 与 b 的所有元素
-     * @hidden
-     */
-    private static Object[] append(Object[] a, Object... b) {
-        Object[] r = new Object[a.length + b.length];
-        System.arraycopy(a, 0, r, 0, a.length);
-        System.arraycopy(b, 0, r, a.length, b.length);
-        return r;
+        @Override
+        public void publishAudit(Object owner, AuditEvent event) {}
+
+        @Override
+        public void publishProblem(Object owner, LinProblem problem) {}
     }
 
     private LinLog() {}
