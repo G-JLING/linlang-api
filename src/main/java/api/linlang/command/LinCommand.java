@@ -1,6 +1,7 @@
 package api.linlang.command;
 
 import api.linlang.file.file.LangText;
+import api.linlang.command.group.CommandRoot;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -8,10 +9,22 @@ import java.util.function.Supplier;
 /**
  * Linlang 命令服务。
  *
- * <p>命令由规范字符串、执行器、权限、执行目标、描述和参数标签组成。规范字符串的
- * 解析规则由运行时实现提供。</p>
+ * <p>命令由规范字符串、执行器、权限、执行目标、描述和参数标签组成。开发者既可以
+ * 使用完整规范逐条注册，也可以通过 {@link #root(String)} 创建可合并的嵌套命令组。</p>
  */
 public interface LinCommand {
+
+    /**
+     * 获取或创建根命令。
+     *
+     * <p>同一命令服务中名称相同的根命令会合并。通过根命令注册的相对规范与
+     * {@link #register(String, CommandExecutor, Permission, ExecTarget, I18n)} 注册的完整规范
+     * 最终进入同一套路由。</p>
+     *
+     * @param namespace 根命令命名空间
+     * @return 根命令
+     */
+    CommandRoot root(String namespace);
 
     /**
      * 注册带静态国际化文本的命令。
@@ -499,13 +512,35 @@ public interface LinCommand {
      * 命令权限要求。
      *
      * @param node 权限节点
+     * @param relative 是否相对于命令组权限前缀
      */
-    record Permission(String node) {
+    record Permission(String node, boolean relative) {
+        /**
+         * 创建绝对权限要求。
+         *
+         * @param node 权限节点
+         */
+        public Permission(String node) {
+            this(node, false);
+        }
+
         /**
          * @param n 权限节点
          * @return 权限要求
          */
-        public static Permission perms(String n){ return new Permission(n); }
+        public static Permission perms(String n){ return new Permission(n, false); }
+
+        /**
+         * 创建相对于命令组权限前缀的权限片段。
+         *
+         * <p>逐条注册没有命令组上下文，此时该片段会作为完整权限节点使用。</p>
+         *
+         * @param segment 权限片段
+         * @return 相对权限要求
+         */
+        public static Permission segment(String segment) {
+            return new Permission(segment, true);
+        }
     }
 
     /**

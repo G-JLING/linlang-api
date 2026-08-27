@@ -36,6 +36,18 @@ public interface LinLogger {
     void info(String msg, Object... kv);
 
     /**
+     * 仅向普通日志文件输出 INFO 级别日志。
+     *
+     * <p>该通道不会向平台控制台投递。普通日志文件未启用时，记录将被忽略。</p>
+     *
+     * @param msg 日志消息，支持占位符格式
+     * @param kv 键值对参数，用于填充消息中的占位符
+     */
+    default void file(String msg, Object... kv) {
+        info(msg, kv);
+    }
+
+    /**
      * 输出 WARN 级别日志
      *
      * @param msg 日志消息，支持占位符格式

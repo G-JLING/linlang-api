@@ -7,6 +7,7 @@ package api.linlang.audit.log;
  */
 public enum LogChannel {
     STANDARD,
+    FILE,
     INIT,
     OP,
     STARTUP,

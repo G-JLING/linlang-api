@@ -11,7 +11,7 @@ final class DefaultCommandMessage implements CommandMessages {
 
     @Override
     public String get(String key, Object... kv) {
-        return switch (key) {
+        String message = switch (key) {
             case "prompt.click.block"           -> "§f点击一个方块以继续";
             case "prompt.break.block"           -> "§f破坏一个方块以继续";
             case "prompt.place.block"           -> "§f放置一个方块以继续";
@@ -40,7 +40,18 @@ final class DefaultCommandMessage implements CommandMessages {
             case "help.page-info"               -> " §f-当前第 §c{current} §f页，共 §c{total_pages} §f页- ";
             case "help.hover-left"              -> "查看上一页";
             case "help.hover-right"             -> "查看下一页";
+            case "info.header"                  -> "§f信息:";
+            case "info.plugin"                  -> "§7   |- §f插件: {value}";
+            case "info.authors"                 -> "§7   |- §f作者: {value}";
+            case "info.build-version"           -> "§7   |- §f构建版本: {value}";
+            case "info.linlang-version"         -> "§7   |- §f琳琅版本: {value}";
+            case "info.visit"                   -> "§7   |- §f访问: {value}";
             default -> key;
         };
+        if (kv == null) return message;
+        for (int index = 0; index + 1 < kv.length; index += 2) {
+            message = message.replace("{" + kv[index] + "}", String.valueOf(kv[index + 1]));
+        }
+        return message;
     }
 }

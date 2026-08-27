@@ -161,6 +161,11 @@ public final class LinLog {
             }
 
             @Override
+            public void file(String msg, Object... values) {
+                publish(owner, LogLevel.INFO, LogChannel.FILE, msg, null, values);
+            }
+
+            @Override
             public void warn(String msg, Object... values) {
                 publish(owner, LogLevel.WARN, LogChannel.STANDARD, msg, null, values);
             }
@@ -218,6 +223,16 @@ public final class LinLog {
 
     public static void info(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STANDARD, message, null, values);
+    }
+
+    /**
+     * 仅向普通日志文件输出 INFO 级别日志。
+     *
+     * @param message 日志消息
+     * @param values 占位参数或扩展字段
+     */
+    public static void file(String message, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.FILE, message, null, values);
     }
 
     public static void warn(String message, Object... values) {
