@@ -583,9 +583,12 @@ public interface LinCommand {
         /**
          * 提供参数补全候选。
          *
+         * <p>返回 {@code null} 或空列表时，命令服务会在参数尚未输入时显示参数说明，
+         * 没有说明则显示参数名。</p>
+         *
          * @param ctx 解析上下文
          * @param prefix 当前输入前缀
-         * @return 补全候选
+         * @return 补全候选，可为 {@code null} 或空列表
          */
         List<String> complete(ParseCtx ctx, String prefix);
     }
