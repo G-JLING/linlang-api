@@ -57,4 +57,4 @@ public final class ExamplePlugin extends JavaPlugin {
 }
 ```
 
-要了解如何使用 Linlang，请访问 [jling.me/linlang](https://jling.me/linlang)。
+要了解如何使用 Linlang，请访问 [jling.me/linlang](https://jling.me/linlang-wiki)。
