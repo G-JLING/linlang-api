@@ -8,8 +8,11 @@ import java.util.List;
 /**
  * 可变的参数化查询描述。
  *
- * <p>条件表达式和排序表达式的语法由数据库实现解释。参数应通过
- * {@link #param(Object)} 或 {@link #params(List)} 提供，避免直接拼接到条件中。</p>
+ * <p>条件由字段名、比较运算符和占位符组成，可以使用 {@code AND} 或 {@code OR}
+ * 连接。支持的比较运算符为 {@code =}、{@code !=}、{@code <>}、{@code <}、
+ * {@code <=}、{@code >}、{@code >=} 和 {@code LIKE}，同时支持
+ * {@code IS NULL} 与 {@code IS NOT NULL}。条件值必须通过 {@link #param(Object)}
+ * 或 {@link #params(List)} 提供，不允许把值直接拼接到表达式中。</p>
  */
 public final class QuerySpec {
     private String where;
@@ -28,7 +31,10 @@ public final class QuerySpec {
     /**
      * 设置条件表达式。
      *
-     * @param where 条件表达式，可为 {@code null}
+     * <p>例如：{@code name = ? AND deleted IS NULL}。字段可以使用 Java 字段名，
+     * 也可以使用 {@code @Column} 声明的列名。</p>
+     *
+     * @param where 受控条件表达式，可为 {@code null}
      * @return 当前查询描述
      */
     public QuerySpec where(String where) {
@@ -60,6 +66,8 @@ public final class QuerySpec {
 
     /**
      * 设置排序表达式。
+     *
+     * <p>多个字段使用逗号分隔，每个字段后可以追加 {@code ASC} 或 {@code DESC}。</p>
      *
      * @param orderBy 排序表达式，可为 {@code null}
      * @return 当前查询描述

@@ -30,6 +30,10 @@ public interface DataService extends AutoCloseable {
     /**
      * 获取绑定到指定实体类型的仓库。
      *
+     * <p>实体必须声明 {@code @Table}，并且只能包含一个 {@code @Id} 字段。
+     * 自动生成的主键仅支持 {@code int} 与 {@code long}。实体需要提供无参数构造方法，
+     * 该构造方法可以不是公开的。</p>
+     *
      * @param entityType 实体类
      * @param <T> 实体类型
      * @param <ID> 主键类型
@@ -40,7 +44,8 @@ public interface DataService extends AutoCloseable {
     /**
      * 执行实现支持的数据库结构迁移。
      *
-     * <p>不支持自动迁移的实现可以不执行任何操作。</p>
+     * <p>运行时采用非破坏性的增量迁移：创建缺失的数据表、列、主键与索引，
+     * 并应用新声明的默认值和表注释。迁移不会自动删除列，也不会缩窄或改写已有列类型。</p>
      */
     void migrate();
 

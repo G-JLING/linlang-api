@@ -23,6 +23,9 @@ public interface Repository<T, ID> extends AutoCloseable {
     /**
      * 新增或更新实体。
      *
+     * <p>自动生成的主键为空或为零时执行新增。主键已经赋值时先更新对应记录；
+     * 如果记录不存在，则使用该主键新增。手动主键不得为 {@code null}。</p>
+     *
      * @param e 待保存实体
      * @return 保存后的实体
      */
@@ -118,8 +121,10 @@ public interface Repository<T, ID> extends AutoCloseable {
     /**
      * 按条件表达式查询实体。
      *
-     * <p>默认实现仅支持单个“字段 = ?”条件，并在内存中筛选 {@link #findAll()} 的结果；
-     * 数据库运行时应覆盖此方法以执行原生参数化查询。无法识别条件时，默认实现返回全部实体。</p>
+     * <p>默认实现仅支持单个“字段 = ?”条件，并在内存中筛选 {@link #findAll()} 的结果。
+     * 数据库运行时会执行受控的参数化查询，支持使用 {@code AND} 或 {@code OR} 连接比较条件，
+     * 以及 {@code IS NULL} 和 {@code IS NOT NULL}。条件值必须使用 {@code ?} 占位符，
+     * 不能直接拼接到表达式中。</p>
      *
      * @param where 条件表达式
      * @param params 参数值
