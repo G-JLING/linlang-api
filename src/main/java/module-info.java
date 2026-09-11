@@ -11,6 +11,8 @@
 module linlang.api {
     uses api.linlang.banner.provider.BannerFontProvider;
     exports api.linlang.runtime;
+    exports api.linlang.runtime.version;
+    uses api.linlang.runtime.Linlang;
     exports api.linlang.file;
     exports api.linlang.file.file;
     exports api.linlang.file.file.annotations;

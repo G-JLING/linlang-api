@@ -1,5 +1,11 @@
 package api.linlang.runtime;
 
+import api.linlang.audit.LinLog;
+import api.linlang.runtime.version.VersionCheck;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
@@ -15,7 +21,18 @@ public final class Lin {
      *
      * @hidden
      */
-    public static final String API_VERSION = "2.2.1.0";
+    public static final String API_VERSION = readApiVersion();
+
+    private static String readApiVersion() {
+        try (InputStream stream = Lin.class.getResourceAsStream("api-version.properties")) {
+            if (stream == null) return "unknown";
+            Properties properties = new Properties();
+            properties.load(stream);
+            return properties.getProperty("version", "unknown").trim();
+        } catch (IOException exception) {
+            return "unknown";
+        }
+    }
 
     /**
      * 尝试通过运行时提供的 factory 方法为指定 platformContext 创建一个 per-plugin 的 facade。
@@ -80,13 +97,25 @@ public final class Lin {
      * @throws IllegalStateException 未安装兼容的 LinlangRuntime 时
      */
     public static Linlang find() {
-        Linlang x = getOrNull();
+        return find(API_VERSION);
+    }
+
+    /**
+     * 按插件声明的 API 版本发现并检查共享运行时。
+     *
+     * @param requiredApiVersion 插件编译时依赖的版本，应由插件自身保存
+     * @return 通过兼容性检查的运行时
+     * @throws IllegalStateException 运行时缺失、版本不兼容或无法识别
+     */
+    public static Linlang find(String requiredApiVersion) {
+        Linlang x = discover();
         if (x == null) {
             throw new IllegalStateException(
                     "Linlang runtime not found. Install LinlangRuntime plugin compatible with API " +
-                            API_VERSION + "."
+                            requiredApiVersion + ". " + VersionCheck.PROJECT_URL
             );
         }
+        VersionCheck.requireCompatible(requiredApiVersion, x.runtimeVersion(), LinLog::warn);
         return x;
     }
 
@@ -98,6 +127,14 @@ public final class Lin {
      * @hidden
      */
     public static Linlang getOrNull() {
+        Linlang runtime = discover();
+        if (runtime != null) {
+            VersionCheck.requireCompatible(API_VERSION, runtime.runtimeVersion(), LinLog::warn);
+        }
+        return runtime;
+    }
+
+    private static Linlang discover() {
         boolean bukkitAvailable = false;
         try {
             Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
@@ -125,7 +162,18 @@ public final class Lin {
      * @return 已就绪但未应用个性化设置的插件级门面
      */
     public static Linlang init(Object platformContext) {
-        var lin = find();
+        return init(platformContext, API_VERSION);
+    }
+
+    /**
+     * 检查插件声明的 API 版本，通过后创建门面并重载。
+     *
+     * @param platformContext 插件上下文
+     * @param requiredApiVersion 插件自身保存的编译依赖版本
+     * @return 已就绪的插件门面
+     */
+    public static Linlang init(Object platformContext, String requiredApiVersion) {
+        var lin = find(requiredApiVersion);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
@@ -142,7 +190,19 @@ public final class Lin {
      * @return 已应用选项并完成重载的插件级门面
      */
     public static Linlang setup(Object platformContext, LinOptions linOptions) {
-        var lin = find();
+        return setup(platformContext, API_VERSION, linOptions);
+    }
+
+    /**
+     * 在创建门面前校验依赖版本，然后应用选项并重载。
+     *
+     * @param platformContext 插件上下文
+     * @param requiredApiVersion 插件自身保存的编译依赖版本
+     * @param linOptions 初始化选项
+     * @return 已就绪的插件门面
+     */
+    public static Linlang setup(Object platformContext, String requiredApiVersion, LinOptions linOptions) {
+        var lin = find(requiredApiVersion);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
@@ -163,7 +223,20 @@ public final class Lin {
      * @return 已应用选项并完成重载的插件级门面
      */
     public static Linlang setup(Object platformContext, Function<Linlang, LinOptions> optionsBuilder) {
-        var lin = find();
+        return setup(platformContext, API_VERSION, optionsBuilder);
+    }
+
+    /**
+     * 在创建门面和调用选项回调前校验依赖版本。
+     *
+     * @param platformContext 插件上下文
+     * @param requiredApiVersion 插件自身保存的编译依赖版本
+     * @param optionsBuilder 选项回调
+     * @return 已就绪的插件门面
+     */
+    public static Linlang setup(Object platformContext, String requiredApiVersion,
+                                Function<Linlang, LinOptions> optionsBuilder) {
+        var lin = find(requiredApiVersion);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
@@ -189,7 +262,19 @@ public final class Lin {
      * @return 已应用选项但未重载的插件级门面
      */
     public static Linlang configure(Object platformContext, LinOptions opts) {
-        var lin = find();
+        return configure(platformContext, API_VERSION, opts);
+    }
+
+    /**
+     * 校验依赖版本并配置插件门面，不主动重载。
+     *
+     * @param platformContext 插件上下文
+     * @param requiredApiVersion 插件自身保存的编译依赖版本
+     * @param opts 初始化选项
+     * @return 已配置的插件门面
+     */
+    public static Linlang configure(Object platformContext, String requiredApiVersion, LinOptions opts) {
+        var lin = find(requiredApiVersion);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
