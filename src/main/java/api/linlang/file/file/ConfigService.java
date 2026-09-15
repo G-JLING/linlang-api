@@ -13,6 +13,26 @@ import java.util.Collection;
 public interface ConfigService {
 
     /**
+     * 解析独立的配置文本并连接当前插件的语言服务。
+     *
+     * @param source 字面字符串、单行语言引用或引用映射
+     * @return 按需解析的配置文本
+     */
+    default api.linlang.file.file.config.ConfigText text(Object source) {
+        throw new UnsupportedOperationException("Config text is not supported by this runtime");
+    }
+
+    /**
+     * 解析独立的配置文本列表并连接当前插件的语言服务。
+     *
+     * @param source 字符串列表、单行语言引用或引用映射
+     * @return 按需解析的配置文本列表
+     */
+    default api.linlang.file.file.config.ConfigList textList(Object source) {
+        throw new UnsupportedOperationException("Config lists are not supported by this runtime");
+    }
+
+    /**
      * 绑定配置类，并根据参数决定是否允许生成和写回文件。
      *
      * <p>{@code emit} 为 {@code false} 时仍会读取磁盘并填充对象，但不会创建、补齐或保存文件。</p>
@@ -21,6 +41,7 @@ public interface ConfigService {
      * @param emit 是否允许生成和写回文件
      * @param <T> 配置对象类型
      * @return 由服务管理的活动配置对象
+     * @throws api.linlang.file.file.config.ConfigLoadException 文件加载或校验失败
      */
     <T> T bind(Class<T> config, boolean emit);
 
@@ -30,6 +51,7 @@ public interface ConfigService {
      * @param config 配置对象类
      * @param <T> 配置对象类型
      * @return 由服务管理的活动配置对象
+     * @throws api.linlang.file.file.config.ConfigLoadException 文件加载或校验失败
      */
     <T> T bind(Class<T> config);
 
@@ -79,7 +101,10 @@ public interface ConfigService {
     /**
      * 重新读取所有已绑定配置的磁盘文件，并原地更新活动对象。
      *
-     * <p>尚未保存的内存修改会被磁盘内容覆盖；需要保留时应先调用 {@link #saveAll()}。</p>
+     * <p>尚未保存的内存修改会被有效的磁盘内容覆盖。失败文件不改变活动对象，
+     * 其余文件仍会继续加载；这不是跨文件的原子事务。</p>
+     *
+     * @throws api.linlang.file.file.config.ConfigLoadException 至少一个文件加载失败
      */
     default void reload() {}
 }

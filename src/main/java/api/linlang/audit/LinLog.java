@@ -58,6 +58,14 @@ public final class LinLog {
     private static volatile Provider provider = NOOP;
 
     /**
+     * 检查审计实现是否已经安装，供启动阶段避免丢失错误报告。
+     *
+     * @return 是否存在有效 Provider
+     * @hidden
+     */
+    public static boolean isInstalled() { return provider != NOOP; }
+
+    /**
      * 安装运行时 Provider。
      *
      * @param next 新 Provider，传入 null 时恢复为空实现

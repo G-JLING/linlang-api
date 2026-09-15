@@ -96,7 +96,7 @@ public final class LinOptions {
     }
 
     /**
-     * 将本选项中的运行参数应用到 Linlang，等待 restart() 调用
+     * 将本选项中的运行参数暂存到 Linlang，由 applyParameters() 原地应用
      *
      * @param lin 可设置运行参数的门面
      * @hidden

@@ -1,5 +1,6 @@
 package api.linlang.command.group;
 
+import api.linlang.command.CommandOptions;
 import api.linlang.command.LinCommand;
 
 import java.util.Map;
@@ -25,13 +26,49 @@ import java.util.Map;
  * rename.register(
  *         "item <id:int>",
  *         context -> renameItem(context.get("id")),
- *         LinCommand.Permission.segment("item"),
- *         LinCommand.ExecTarget.PLAYER,
- *         i18n
+ *         CommandOptions.options()
+ *                 .relativePermission("item")
+ *                 .player()
+ *                 .i18n(i18n)
  * );
  * }</pre>
  */
 public interface CommandGroup {
+
+    /**
+     * 使用默认选项在当前组下注册命令。
+     *
+     * @param spec 相对命令规范
+     * @param executor 命令执行器
+     * @return 当前命令组
+     */
+    default CommandGroup register(String spec, LinCommand.CommandExecutor executor) {
+        return register(spec, executor, CommandOptions.options());
+    }
+
+    /**
+     * 使用统一选项在当前组下注册命令。
+     *
+     * @param spec 相对命令规范
+     * @param executor 命令执行器
+     * @param options 命令选项
+     * @return 当前命令组
+     */
+    default CommandGroup register(
+            String spec,
+            LinCommand.CommandExecutor executor,
+            CommandOptions options
+    ) {
+        CommandOptions value = java.util.Objects.requireNonNull(options, "options");
+        return registerLazy(
+                spec,
+                executor,
+                value.permission(),
+                value.target(),
+                value.description(),
+                value.labels()
+        );
+    }
 
     /**
      * @return 从根命令开始的完整命令路径

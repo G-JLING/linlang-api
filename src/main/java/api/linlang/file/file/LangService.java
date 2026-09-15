@@ -34,6 +34,40 @@ public interface LangService {
     <T> T bind(Class<T> keysClass, boolean emit);
 
     /**
+     * 绑定语言对象并注册当前语言服务内唯一的别名，供配置引用使用。
+     *
+     * @param alias 语言包别名，由字母、数字、下划线或连字符组成
+     * @param keysClass 语言对象类，资源路径仍由 LangPack 声明
+     * @param <T> 语言对象类型
+     * @return 与普通绑定共享的语言对象
+     * @throws IllegalArgumentException 别名无效或已绑定到其他语言类
+     */
+    <T> T bind(String alias, Class<T> keysClass);
+
+    /**
+     * 绑定带别名的语言对象，并指定是否允许输出文件。
+     *
+     * @param alias 当前语言服务内的语言包别名
+     * @param keysClass 语言对象类
+     * @param emit 是否允许输出文件
+     * @param <T> 语言对象类型
+     * @return 已绑定的语言对象
+     */
+    <T> T bind(String alias, Class<T> keysClass, boolean emit);
+
+    /**
+     * 按别名和包内路径读取当前语言的原始值，不替换占位符。
+     *
+     * <p>活动语言中缺少路径时查询该包的默认语言。集合与映射不可修改。
+     * 别名或路径不存在时返回 null；不跨语言包或插件查找。</p>
+     *
+     * @param alias 绑定时声明的别名
+     * @param key 包内路径，使用语言文件中的键名
+     * @return 字符串、列表、映射等原始值，或 null
+     */
+    Object lookup(String alias, String key);
+
+    /**
      * 重新扫描语言目录，并原地刷新所有已绑定语言对象。
      *
      * <p>该方法不会改变当前全局语言；允许写回的语言包会同时补齐缺失键。</p>

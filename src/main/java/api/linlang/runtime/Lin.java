@@ -1,6 +1,7 @@
 package api.linlang.runtime;
 
 import api.linlang.audit.LinLog;
+import api.linlang.runtime.version.ApiVersionDetector;
 import api.linlang.runtime.version.VersionCheck;
 
 import java.io.IOException;
@@ -162,7 +163,7 @@ public final class Lin {
      * @return 已就绪但未应用个性化设置的插件级门面
      */
     public static Linlang init(Object platformContext) {
-        return init(platformContext, API_VERSION);
+        return init(platformContext, requiredApiVersion(platformContext));
     }
 
     /**
@@ -190,7 +191,7 @@ public final class Lin {
      * @return 已应用选项并完成重载的插件级门面
      */
     public static Linlang setup(Object platformContext, LinOptions linOptions) {
-        return setup(platformContext, API_VERSION, linOptions);
+        return setup(platformContext, requiredApiVersion(platformContext), linOptions);
     }
 
     /**
@@ -223,7 +224,7 @@ public final class Lin {
      * @return 已应用选项并完成重载的插件级门面
      */
     public static Linlang setup(Object platformContext, Function<Linlang, LinOptions> optionsBuilder) {
-        return setup(platformContext, API_VERSION, optionsBuilder);
+        return setup(platformContext, requiredApiVersion(platformContext), optionsBuilder);
     }
 
     /**
@@ -262,7 +263,7 @@ public final class Lin {
      * @return 已应用选项但未重载的插件级门面
      */
     public static Linlang configure(Object platformContext, LinOptions opts) {
-        return configure(platformContext, API_VERSION, opts);
+        return configure(platformContext, requiredApiVersion(platformContext), opts);
     }
 
     /**
@@ -288,6 +289,10 @@ public final class Lin {
 
 
     private static volatile Linlang cached;
+
+    private static String requiredApiVersion(Object platformContext) {
+        return ApiVersionDetector.detect(platformContext).orElse(API_VERSION);
+    }
 
     private Lin() {
     }

@@ -18,12 +18,14 @@ public final class LinProblem {
     private final String code;
     private final Map<String, Object> context;
     private final Throwable cause;
+    private final String consoleSummary;
 
     private LinProblem(Builder builder) {
         this.timestamp = builder.timestamp;
         this.code = builder.code;
         this.context = Collections.unmodifiableMap(new LinkedHashMap<>(builder.context));
         this.cause = builder.cause;
+        this.consoleSummary = builder.consoleSummary;
     }
 
     /**
@@ -94,6 +96,13 @@ public final class LinProblem {
     }
 
     /**
+     * 返回简短控制台摘要；不为空时控制台不附带问题堆栈。
+     *
+     * @return 摘要，未指定时为 null
+     */
+    public String consoleSummary() { return consoleSummary; }
+
+    /**
      * 问题记录构建器。
      */
     public static final class Builder {
@@ -102,6 +111,7 @@ public final class LinProblem {
         private final String code;
         private final Map<String, Object> context = new LinkedHashMap<>();
         private Throwable cause;
+        private String consoleSummary;
 
         private Builder(String code) {
             if (code == null || code.isBlank()) {
@@ -144,6 +154,18 @@ public final class LinProblem {
          */
         public Builder cause(Throwable cause) {
             this.cause = cause;
+            return this;
+        }
+
+        /**
+         * 指定控制台摘要，完整问题仍交给问题文件输出。
+         *
+         * @param summary 不为空的单行摘要
+         * @return 当前构建器
+         */
+        public Builder consoleSummary(String summary) {
+            if (summary == null || summary.isBlank()) throw new IllegalArgumentException("summary");
+            this.consoleSummary = summary.replaceAll("[\\p{Cntrl}\\p{Cf}\\p{Zl}\\p{Zp}]", " ");
             return this;
         }
 

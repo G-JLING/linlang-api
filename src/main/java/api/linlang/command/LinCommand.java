@@ -9,8 +9,9 @@ import java.util.function.Supplier;
 /**
  * Linlang 命令服务。
  *
- * <p>命令由规范字符串、执行器、权限、执行目标、描述和参数标签组成。开发者既可以
- * 使用完整规范逐条注册，也可以通过 {@link #root(String)} 创建可合并的嵌套命令组。</p>
+ * <p>命令由规范字符串、执行器和 {@link CommandOptions} 组成。开发者既可以
+ * 使用完整规范逐条注册，也可以通过 {@link #root(String)} 创建可合并的嵌套命令组。
+ * 旧的分项参数注册方法继续保留。</p>
  */
 public interface LinCommand {
 
@@ -25,6 +26,39 @@ public interface LinCommand {
      * @return 根命令
      */
     CommandRoot root(String namespace);
+
+    /**
+     * 使用默认选项注册命令。
+     *
+     * <p>命令默认不要求权限，并允许玩家和控制台执行。</p>
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @return 当前命令服务
+     */
+    default LinCommand register(String spec, CommandExecutor exec) {
+        return register(spec, exec, CommandOptions.options());
+    }
+
+    /**
+     * 使用统一选项注册命令。
+     *
+     * @param spec 命令规范字符串
+     * @param exec 命令执行器
+     * @param options 命令选项
+     * @return 当前命令服务
+     */
+    default LinCommand register(String spec, CommandExecutor exec, CommandOptions options) {
+        CommandOptions value = Objects.requireNonNull(options, "options");
+        return registerLazy(
+                spec,
+                exec,
+                value.permission(),
+                value.target(),
+                value.description(),
+                value.labels()
+        );
+    }
 
     /**
      * 注册带静态国际化文本的命令。

@@ -20,7 +20,7 @@ Linlang（琳琅）是一个适用于 Bukkit/Paper 插件开发的服务框架�
 <dependency>
     <groupId>me.jling</groupId>
     <artifactId>linlang-api</artifactId>
-    <version>2.2.1.0-SNAPSHOT</version>
+    <version>2.6.1.0</version>
     <scope>provided</scope>
 </dependency>
 ```

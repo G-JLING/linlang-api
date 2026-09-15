@@ -6,7 +6,8 @@ import java.util.function.Consumer;
 /**
  * 不依赖网络、语言文件和运行时的兼容性检查入口。
  *
- * <p>A 或 B 不同拒绝运行，C 不同警告，D 不同静默兼容。比较不依据版本字符串的字典序。</p>
+ * <p>A 或 B 不同拒绝运行；运行时的 C 低于插件要求时拒绝，高于时警告；
+ * D 不同静默兼容。比较不依据版本字符串的字典序。</p>
  */
 public final class VersionCheck {
     public static final String PROJECT_URL = "https://jling.me/linlang";
@@ -36,22 +37,31 @@ public final class VersionCheck {
                             + required + "，已安装=" + installed + "。请检查构建版本：" + PROJECT_URL);
         }
         boolean older = actual.compareTo(expected) < 0;
-        Status status = expected.a() != actual.a() || expected.b() != actual.b()
-                ? Status.INCOMPATIBLE : expected.c() != actual.c() ? Status.WARNING : Status.COMPATIBLE;
+        boolean differentFamily = expected.a() != actual.a() || expected.b() != actual.b();
+        boolean missingFeatureRelease = !differentFamily && actual.c() < expected.c();
+        Status status = differentFamily || missingFeatureRelease
+                ? Status.INCOMPATIBLE
+                : actual.c() > expected.c() ? Status.WARNING : Status.COMPATIBLE;
         String message = "";
         if (status != Status.COMPATIBLE) {
             String code = status == Status.INCOMPATIBLE ? INCOMPATIBLE_CODE : WARNING_CODE;
-            message = "[" + code + "] Linlang 版本检查：期望=" + required + "，已安装=" + installed
-                    + (status == Status.INCOMPATIBLE ? "。A 或 B 不同，已拒绝运行。" : "。C 不同，允许继续运行，请确认功能兼容。");
+            message = "[" + code + "] Linlang 版本检查：插件要求=" + required + "，运行时=" + installed;
+            if (differentFamily) {
+                message += "。A 或 B 不同，已拒绝初始化。";
+            } else if (missingFeatureRelease) {
+                message += "。运行时版本低于插件编译版本，可能缺少插件使用的 API 类或方法，已拒绝初始化。";
+            } else {
+                message += "。运行时版本较新，允许继续初始化，请确认功能兼容。";
+            }
             message += older
-                    ? "已安装版本较低，请获取与期望 A.B 匹配的新构建：" + PROJECT_URL
-                    : "请更新依赖方或选择与期望 A.B 匹配的运行时：" + PROJECT_URL;
+                    ? "请更新 Linlang Runtime：" + PROJECT_URL
+                    : "请更新依赖方或选择与插件要求匹配的运行时：" + PROJECT_URL;
         }
         return new Result(status, required, installed, older, message);
     }
 
     /**
-     * 在资源创建前执行检查；不兼容时抛出 Java 异常，C 不同时向指定接收器发送警告。
+     * 在资源创建前执行检查；不兼容时抛出 Java 异常，运行时 C 较高时发送警告。
      *
      * @param required 期望版本
      * @param installed 已安装版本

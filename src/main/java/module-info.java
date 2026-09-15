@@ -9,12 +9,14 @@
  * <p>作为工具，琳琅可以使得 Minecraft 开发更为流畅。琳琅提供文件、语言、数据库、日志与审计、GUI（基于箱子 GUI 的）等服务，通过琳琅的服务，您可以省去原先实现这些功能的大量繁琐、高重复性与低业务逻辑性代码。</p>
  */
 module linlang.api {
+    requires java.xml;
     uses api.linlang.banner.provider.BannerFontProvider;
     exports api.linlang.runtime;
     exports api.linlang.runtime.version;
     uses api.linlang.runtime.Linlang;
     exports api.linlang.file;
     exports api.linlang.file.file;
+    exports api.linlang.file.file.config;
     exports api.linlang.file.file.annotations;
     exports api.linlang.file.file.migrator;
     exports api.linlang.file.file.implement;
