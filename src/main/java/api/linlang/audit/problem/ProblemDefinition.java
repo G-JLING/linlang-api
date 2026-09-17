@@ -5,8 +5,8 @@ import java.util.Objects;
 /**
  * 内建问题代码的查询结果。
  *
- * <p>定义由运行时直接提供，不依赖配置或语言文件。说明文本用于代码查询，
- * 实际抛出的 Java 异常仍然只需要携带问题代码和 cause。</p>
+ * <p>定义由运行时直接提供，说明文本可以跟随运行时语言变化。语言服务不可用时，
+ * 运行时仍会返回内建默认文本。实际抛出的 Java 异常只需要携带问题代码和 cause。</p>
  */
 public final class ProblemDefinition {
 
