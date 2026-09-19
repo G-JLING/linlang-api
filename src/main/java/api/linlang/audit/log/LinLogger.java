@@ -18,6 +18,48 @@ import api.linlang.audit.LinLog;
  */
 public interface LinLogger {
 
+    /**
+     * 提交一条结构化日志记录。
+     *
+     * <p>运行时实现会保留模板代码并在投递边界完成本地化。其他实现默认使用模板的
+     * 回退文本，以保持现有日志实现兼容。</p>
+     *
+     * @param level 日志等级
+     * @param channel 日志通道
+     * @param template 日志模板
+     * @param cause 异常原因，可以为 null
+     * @param kv 占位参数或扩展字段
+     */
+    default void write(LogLevel level,
+                       LogChannel channel,
+                       LogTemplate template,
+                       Throwable cause,
+                       Object... kv) {
+        String message = template == null ? "" : template.fallback();
+        if (channel == LogChannel.FILE) {
+            file(message, kv);
+            return;
+        }
+        if (channel == LogChannel.OP) {
+            op(message, kv);
+            return;
+        }
+        if (channel == LogChannel.STARTUP) {
+            startup(message, kv);
+            return;
+        }
+        if (channel == LogChannel.INIT) {
+            init(message, kv);
+            return;
+        }
+        switch (level == null ? LogLevel.INFO : level) {
+            case DEBUG -> debug(message, kv);
+            case INFO -> info(message, kv);
+            case WARN -> warn(message, cause, kv);
+            case ERROR -> error(message, cause, kv);
+        }
+    }
+
 
     /**
      * 输出 DEBUG 级别日志。
@@ -28,12 +70,32 @@ public interface LinLogger {
     void debug(String msg, Object... kv);
 
     /**
+     * 输出结构化 DEBUG 日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void debug(LogTemplate template, Object... kv) {
+        write(LogLevel.DEBUG, LogChannel.STANDARD, template, null, kv);
+    }
+
+    /**
      * 输出 INFO 级别日志。
      *
      * @param msg 日志消息，支持占位符格式
      * @param kv  键值对参数，用于填充消息中的占位符
      */
     void info(String msg, Object... kv);
+
+    /**
+     * 输出结构化 INFO 日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void info(LogTemplate template, Object... kv) {
+        write(LogLevel.INFO, LogChannel.STANDARD, template, null, kv);
+    }
 
     /**
      * 仅向普通日志文件输出 INFO 级别日志。
@@ -48,12 +110,32 @@ public interface LinLogger {
     }
 
     /**
+     * 仅向普通日志文件输出结构化 INFO 日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void file(LogTemplate template, Object... kv) {
+        write(LogLevel.INFO, LogChannel.FILE, template, null, kv);
+    }
+
+    /**
      * 输出 WARN 级别日志
      *
      * @param msg 日志消息，支持占位符格式
      * @param kv  键值对参数，用于填充消息中的占位符
      */
     void warn(String msg, Object... kv);
+
+    /**
+     * 输出结构化 WARN 日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void warn(LogTemplate template, Object... kv) {
+        write(LogLevel.WARN, LogChannel.STANDARD, template, null, kv);
+    }
 
     /**
      * 输出 WARN 级别日志并保留异常原因链。
@@ -65,6 +147,17 @@ public interface LinLogger {
     void warn(String msg, Throwable t, Object... kv);
 
     /**
+     * 输出结构化 WARN 日志并保留异常原因链。
+     *
+     * @param template 日志模板
+     * @param t 异常对象
+     * @param kv 占位参数或扩展字段
+     */
+    default void warn(LogTemplate template, Throwable t, Object... kv) {
+        write(LogLevel.WARN, LogChannel.STANDARD, template, t, kv);
+    }
+
+    /**
      * 输出 ERROR 级日志，可选附带异常
      *
      * @param msg 日志消息，支持占位符格式
@@ -72,6 +165,27 @@ public interface LinLogger {
      * @param kv  键值对参数，用于填充消息中的占位符
      */
     void error(String msg, Throwable t, Object... kv);
+
+    /**
+     * 输出结构化 ERROR 日志并保留异常原因链。
+     *
+     * @param template 日志模板
+     * @param t 异常对象，可以为 null
+     * @param kv 占位参数或扩展字段
+     */
+    default void error(LogTemplate template, Throwable t, Object... kv) {
+        write(LogLevel.ERROR, LogChannel.STANDARD, template, t, kv);
+    }
+
+    /**
+     * 输出不带异常的结构化 ERROR 日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void error(LogTemplate template, Object... kv) {
+        write(LogLevel.ERROR, LogChannel.STANDARD, template, null, kv);
+    }
 
     /**
      * 方便重载：没有 Throwable 时可以只传消息和 kv
@@ -94,6 +208,16 @@ public interface LinLogger {
     void op(String msg, Object... kv);
 
     /**
+     * 输出结构化 OP 通道日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void op(LogTemplate template, Object... kv) {
+        write(LogLevel.INFO, LogChannel.OP, template, null, kv);
+    }
+
+    /**
      * 输出启动通道日志：服务器尚未完全启动时进入 STARTUP 队列
      *
      * @param msg 日志消息，支持占位符格式
@@ -102,12 +226,32 @@ public interface LinLogger {
     void startup(String msg, Object... kv);
 
     /**
+     * 输出结构化启动日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void startup(LogTemplate template, Object... kv) {
+        write(LogLevel.INFO, LogChannel.STARTUP, template, null, kv);
+    }
+
+    /**
      * 输出 INIT 通道日志：通常用于模块/插件初始化阶段
      *
      * @param msg 日志消息，支持占位符格式
      * @param kv  键值对参数，用于填充消息中的占位符
      */
     void init(String msg, Object... kv);
+
+    /**
+     * 输出结构化初始化日志。
+     *
+     * @param template 日志模板
+     * @param kv 占位参数或扩展字段
+     */
+    default void init(LogTemplate template, Object... kv) {
+        write(LogLevel.INFO, LogChannel.INIT, template, null, kv);
+    }
 
     // --- 审计事件（按 owner 归属） ---
 

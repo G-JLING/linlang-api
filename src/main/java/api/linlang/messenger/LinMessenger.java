@@ -17,6 +17,9 @@ public interface LinMessenger {
     /**
      * 投递完整消息定义。
      *
+     * <p>无法规范化、选择传输器或完成投递时，运行时通过 Problem 系统记录故障，
+     * 不再把传输层异常传播到业务调用栈。</p>
+     *
      * @param recipient 接收者
      * @param message 消息定义
      */

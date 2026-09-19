@@ -5,6 +5,10 @@ import java.util.Optional;
 
 /**
  * 问题报告与内建代码查询成员。
+ *
+ * <p>Problem 用于记录需要定位和查询的运行时故障，也可以记录没有 Java 异常的
+ * 可恢复问题。它不替代方法参数校验，也不应作为正常业务分支或用户输入错误的
+ * 控制流。操作无法继续时，调用方仍应在问题上报后抛出合适的 Java 异常。</p>
  */
 public interface LinProblemReporter {
 

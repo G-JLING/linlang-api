@@ -5,6 +5,7 @@ import api.linlang.audit.log.LinLogger;
 import api.linlang.audit.log.LogChannel;
 import api.linlang.audit.log.LogLevel;
 import api.linlang.audit.log.LogRecord;
+import api.linlang.audit.log.LogTemplate;
 import api.linlang.audit.problem.LinProblem;
 import api.linlang.audit.problem.LinProblemReporter;
 import api.linlang.audit.problem.ProblemDefinition;
@@ -159,6 +160,21 @@ public final class LinLog {
     private static LinLogger loggerFor(Object owner) {
         return new LinLogger() {
             @Override
+            public void write(LogLevel level,
+                              LogChannel channel,
+                              LogTemplate template,
+                              Throwable cause,
+                              Object... values) {
+                provider.publish(owner, LogRecord.of(
+                        level == null ? LogLevel.INFO : level,
+                        channel == null ? LogChannel.STANDARD : channel,
+                        template,
+                        cause,
+                        values
+                ));
+            }
+
+            @Override
             public void debug(String msg, Object... values) {
                 publish(owner, LogLevel.DEBUG, LogChannel.STANDARD, msg, null, values);
             }
@@ -229,8 +245,16 @@ public final class LinLog {
         publish(null, LogLevel.DEBUG, LogChannel.STANDARD, message, null, values);
     }
 
+    public static void debug(LogTemplate template, Object... values) {
+        publish(null, LogLevel.DEBUG, LogChannel.STANDARD, template, null, values);
+    }
+
     public static void info(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STANDARD, message, null, values);
+    }
+
+    public static void info(LogTemplate template, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.STANDARD, template, null, values);
     }
 
     /**
@@ -243,28 +267,56 @@ public final class LinLog {
         publish(null, LogLevel.INFO, LogChannel.FILE, message, null, values);
     }
 
+    public static void file(LogTemplate template, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.FILE, template, null, values);
+    }
+
     public static void warn(String message, Object... values) {
         publish(null, LogLevel.WARN, LogChannel.STANDARD, message, null, values);
+    }
+
+    public static void warn(LogTemplate template, Object... values) {
+        publish(null, LogLevel.WARN, LogChannel.STANDARD, template, null, values);
     }
 
     public static void warn(String message, Throwable cause, Object... values) {
         publish(null, LogLevel.WARN, LogChannel.STANDARD, message, cause, values);
     }
 
+    public static void warn(LogTemplate template, Throwable cause, Object... values) {
+        publish(null, LogLevel.WARN, LogChannel.STANDARD, template, cause, values);
+    }
+
     public static void error(String message, Throwable cause, Object... values) {
         publish(null, LogLevel.ERROR, LogChannel.STANDARD, message, cause, values);
+    }
+
+    public static void error(LogTemplate template, Throwable cause, Object... values) {
+        publish(null, LogLevel.ERROR, LogChannel.STANDARD, template, cause, values);
     }
 
     public static void error(String message, Object... values) {
         error(message, null, values);
     }
 
+    public static void error(LogTemplate template, Object... values) {
+        error(template, null, values);
+    }
+
     public static void init(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.INIT, message, null, values);
     }
 
+    public static void init(LogTemplate template, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.INIT, template, null, values);
+    }
+
     public static void op(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.OP, message, null, values);
+    }
+
+    public static void op(LogTemplate template, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.OP, template, null, values);
     }
 
     public static void op(Object owner, String message, Object... values) {
@@ -273,6 +325,10 @@ public final class LinLog {
 
     public static void startup(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STARTUP, message, null, values);
+    }
+
+    public static void startup(LogTemplate template, Object... values) {
+        publish(null, LogLevel.INFO, LogChannel.STARTUP, template, null, values);
     }
 
     public static void startup(Object owner, String message, Object... values) {
@@ -334,6 +390,15 @@ public final class LinLog {
                                 Throwable cause,
                                 Object... values) {
         provider.publish(owner, LogRecord.of(level, channel, message, cause, values));
+    }
+
+    private static void publish(Object owner,
+                                LogLevel level,
+                                LogChannel channel,
+                                LogTemplate template,
+                                Throwable cause,
+                                Object... values) {
+        provider.publish(owner, LogRecord.of(level, channel, template, cause, values));
     }
 
     private static final class Noop implements Provider {

@@ -14,6 +14,7 @@ public final class LogRecord {
     private final Instant timestamp;
     private final LogLevel level;
     private final LogChannel channel;
+    private final String code;
     private final String message;
     private final Object[] arguments;
     private final Throwable cause;
@@ -21,12 +22,14 @@ public final class LogRecord {
     private LogRecord(Instant timestamp,
                       LogLevel level,
                       LogChannel channel,
+                      String code,
                       String message,
                       Throwable cause,
                       Object[] arguments) {
         this.timestamp = Objects.requireNonNull(timestamp, "timestamp");
         this.level = Objects.requireNonNull(level, "level");
         this.channel = Objects.requireNonNull(channel, "channel");
+        this.code = code == null || code.isBlank() ? null : code.trim();
         this.message = message == null ? "" : message;
         this.cause = cause;
         this.arguments = arguments == null ? new Object[0] : arguments.clone();
@@ -48,7 +51,29 @@ public final class LogRecord {
                                String message,
                                Throwable cause,
                                Object... arguments) {
-        return new LogRecord(Instant.now(), level, channel, message, cause, arguments);
+        return new LogRecord(Instant.now(), level, channel, null, message, cause, arguments);
+    }
+
+    /**
+     * 创建一条结构化日志记录。
+     *
+     * @param level 日志等级
+     * @param channel 投递通道
+     * @param template 日志模板
+     * @param cause 异常原因
+     * @param arguments 占位参数或扩展字段
+     * @return 新日志记录
+     * @hidden
+     */
+    public static LogRecord of(LogLevel level,
+                               LogChannel channel,
+                               LogTemplate template,
+                               Throwable cause,
+                               Object... arguments) {
+        LogTemplate value = Objects.requireNonNull(template, "template");
+        return new LogRecord(
+                Instant.now(), level, channel, value.code(), value.fallback(), cause, arguments
+        );
     }
 
     public Instant timestamp() {
@@ -61,6 +86,15 @@ public final class LogRecord {
 
     public LogChannel channel() {
         return channel;
+    }
+
+    /**
+     * 返回结构化日志代码。
+     *
+     * @return 日志代码；普通字符串日志返回 null
+     */
+    public String code() {
+        return code;
     }
 
     public String message() {
@@ -80,6 +114,7 @@ public final class LogRecord {
         return "LogRecord{" +
                 "level=" + level +
                 ", channel=" + channel +
+                ", code='" + code + '\'' +
                 ", message='" + message + '\'' +
                 ", arguments=" + Arrays.toString(arguments) +
                 '}';
