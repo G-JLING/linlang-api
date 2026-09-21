@@ -1,10 +1,14 @@
 package api.linlang.runtime.version;
 
+import api.linlang.audit.LinAudit;
+import api.linlang.audit.problem.ProblemDefinition;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * 不依赖网络、语言文件和运行时的兼容性检查入口。
+ * @hidden
+ * 兼容性检查。
  *
  * <p>A 或 B 不同拒绝运行；运行时的 C 低于插件要求时拒绝，高于时警告；
  * D 不同静默兼容。比较不依据版本字符串的字典序。</p>
@@ -33,8 +37,8 @@ public final class VersionCheck {
             actual = LinVersion.parse(installed);
         } catch (IllegalArgumentException exception) {
             return new Result(Status.INVALID, required, installed, false,
-                    "[" + INVALID_CODE + "] 无法识别 Linlang 版本，要求 A.B.C.D 格式：期望="
-                            + required + "，已安装=" + installed + "。请检查构建版本：" + PROJECT_URL);
+                    fallbackMessage(INVALID_CODE, required, installed,
+                            "Invalid version metadata; expected A.B.C.D."));
         }
         boolean older = actual.compareTo(expected) < 0;
         boolean differentFamily = expected.a() != actual.a() || expected.b() != actual.b();
@@ -42,26 +46,28 @@ public final class VersionCheck {
         Status status = differentFamily || missingFeatureRelease
                 ? Status.INCOMPATIBLE
                 : actual.c() > expected.c() ? Status.WARNING : Status.COMPATIBLE;
-        String message = "";
-        if (status != Status.COMPATIBLE) {
-            String code = status == Status.INCOMPATIBLE ? INCOMPATIBLE_CODE : WARNING_CODE;
-            message = "[" + code + "] Linlang 版本检查：插件要求=" + required + "，运行时=" + installed;
-            if (differentFamily) {
-                message += "。A 或 B 不同，已拒绝初始化。";
-            } else if (missingFeatureRelease) {
-                message += "。运行时版本低于插件编译版本，可能缺少插件使用的 API 类或方法，已拒绝初始化。";
-            } else {
-                message += "。运行时版本较新，允许继续初始化，请确认功能兼容。";
-            }
-            message += older
-                    ? "请更新 Linlang Runtime：" + PROJECT_URL
-                    : "请更新依赖方或选择与插件要求匹配的运行时：" + PROJECT_URL;
-        }
+        String message = switch (status) {
+            case COMPATIBLE -> "";
+            case WARNING -> fallbackMessage(WARNING_CODE, required, installed,
+                    "The Runtime feature version is newer than the plugin API version.");
+            case INCOMPATIBLE -> fallbackMessage(INCOMPATIBLE_CODE, required, installed,
+                    differentFamily
+                            ? "The API and Runtime belong to different A.B compatibility families."
+                            : "The Runtime feature version is older than the plugin requirement.");
+            case INVALID -> throw new IllegalStateException("Unexpected compatibility status");
+        };
         return new Result(status, required, installed, older, message);
     }
 
+    private static String fallbackMessage(String code, String required, String installed, String detail) {
+        return "[" + code + "] " + detail + " API=" + required + ", Runtime=" + installed
+                + ". " + PROJECT_URL;
+    }
+
     /**
-     * 在资源创建前执行检查；不兼容时抛出 Java 异常，运行时 C 较高时发送警告。
+     * 在语言与审计服务尚不可用的启动早期执行检查。
+     *
+     * <p>不兼容时抛出 Java 异常，运行时 C 较高时向接收器发送英文回退消息。</p>
      *
      * @param required 期望版本
      * @param installed 已安装版本
@@ -75,6 +81,61 @@ public final class VersionCheck {
         if (!result.allowed()) throw new IllegalStateException(result.message());
         if (result.warning()) warning.accept(result.message());
         return result;
+    }
+
+    /**
+     * 使用运行时问题目录中的当前语言文本完成兼容性检查。
+     *
+     * <p>比较规则仍由本类执行。问题目录不可用或未包含对应代码时，使用不依赖
+     * Runtime 的英文回退消息，保证早期启动错误仍然可读。</p>
+     *
+     * @param required 期望版本
+     * @param installed 已安装版本
+     * @param audit 已安装运行时提供的审计入口
+     * @return 允许运行的比较结果
+     * @throws IllegalStateException 版本不兼容或无法识别
+     */
+    public static Result requireCompatible(String required, String installed, LinAudit audit) {
+        Objects.requireNonNull(audit, "audit");
+        Result result = check(required, installed);
+        if (result.status() == Status.COMPATIBLE) return result;
+
+        ProblemDefinition definition = audit.problem().lookup(result.code()).orElse(null);
+        String message = message(result, definition);
+        if (!result.allowed()) throw new IllegalStateException(message);
+
+        audit.logger().warn(
+                message,
+                "code", result.code(),
+                "required", result.required(),
+                "runtime", result.installed()
+        );
+        return result;
+    }
+
+    /**
+     * 使用问题定义说明和兼容性上下文组成最终消息。
+     *
+     * @param result 兼容性结果
+     * @param definition 当前语言的问题定义，可以为 null
+     * @return 可用于日志或异常的消息；兼容时为空字符串
+     */
+    public static String message(Result result, ProblemDefinition definition) {
+        Objects.requireNonNull(result, "result");
+        if (result.status() == Status.COMPATIBLE) return "";
+        if (definition == null || !result.code().equalsIgnoreCase(definition.code())) {
+            return result.message();
+        }
+
+        StringBuilder message = new StringBuilder()
+                .append('[').append(result.code()).append("] ")
+                .append(definition.description())
+                .append(" API=").append(result.required())
+                .append(", Runtime=").append(result.installed());
+        if (!definition.resolution().isBlank()) {
+            message.append(' ').append(definition.resolution());
+        }
+        return message.toString();
     }
 
     /**
@@ -101,6 +162,7 @@ public final class VersionCheck {
 
     /**
      * 不可变的兼容性结果；installedOlder 只表示数字版本先后，不决定是否允许运行。
+     * message 是不依赖 Runtime 与语言目录的英文回退文本。
      */
     public record Result(Status status, String required, String installed, boolean installedOlder, String message) {
         public boolean allowed() {
@@ -109,6 +171,20 @@ public final class VersionCheck {
 
         public boolean warning() {
             return status == Status.WARNING;
+        }
+
+        /**
+         * 返回与当前状态对应的稳定 Problem 代码。
+         *
+         * @return Problem 代码；兼容时为空字符串
+         */
+        public String code() {
+            return switch (status) {
+                case COMPATIBLE -> "";
+                case WARNING -> WARNING_CODE;
+                case INCOMPATIBLE -> INCOMPATIBLE_CODE;
+                case INVALID -> INVALID_CODE;
+            };
         }
     }
 

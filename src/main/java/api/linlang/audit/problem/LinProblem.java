@@ -100,7 +100,9 @@ public final class LinProblem {
      *
      * @return 摘要，未指定时为 null
      */
-    public String consoleSummary() { return consoleSummary; }
+    public String consoleSummary() {
+        return consoleSummary;
+    }
 
     /**
      * 问题记录构建器。

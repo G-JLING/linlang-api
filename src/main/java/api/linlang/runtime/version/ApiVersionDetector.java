@@ -22,6 +22,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * @hidden
+ *
  * 检测插件编译时使用的 Linlang API 版本。
  *
  * <p>Maven 构建通常会把项目 POM 写入插件 Jar，本类会读取其中的

@@ -16,6 +16,19 @@ import java.util.function.Supplier;
 public interface LinCommand {
 
     /**
+     * 注册自定义命令参数类型解析器。
+     *
+     * <p>解析器既负责把参数文本转换为业务对象，也可以按当前输入动态提供 Tab 补全候选。
+     * 实现若不支持扩展参数类型，可以保留默认行为。</p>
+     *
+     * @param resolver 参数类型解析器
+     * @throws UnsupportedOperationException 当前实现不支持自定义解析器时
+     */
+    default void addResolver(TypeResolver resolver) {
+        throw new UnsupportedOperationException("Custom command type resolvers are not supported");
+    }
+
+    /**
      * 获取或创建根命令。
      *
      * <p>同一命令服务中名称相同的根命令会合并。通过根命令注册的相对规范与

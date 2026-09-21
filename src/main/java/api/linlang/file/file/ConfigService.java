@@ -99,6 +99,19 @@ public interface ConfigService {
     void saveAll();
 
     /**
+     * 重新读取已绑定配置，并将发现的缺失键写回原文件。
+     *
+     * <p>普通绑定和重载只在内存中使用默认值，不会据此修改已有文件。本方法表示调用方已经
+     * 明确允许本次修复。YAML 会在补入的键前添加 Linlang 标记；JSON 会保留差异文件作为记录。</p>
+     *
+     * @return 本次写入的缺失键数量
+     * @throws api.linlang.file.file.config.ConfigLoadException 至少一个配置文件修复失败
+     */
+    default int repairMissingKeys() {
+        return 0;
+    }
+
+    /**
      * 重新读取所有已绑定配置的磁盘文件，并原地更新活动对象。
      *
      * <p>尚未保存的内存修改会被有效的磁盘内容覆盖。失败文件不改变活动对象，

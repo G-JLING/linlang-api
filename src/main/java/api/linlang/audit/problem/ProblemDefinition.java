@@ -3,6 +3,8 @@ package api.linlang.audit.problem;
 import java.util.Objects;
 
 /**
+ * @hidden
+ *
  * 内建问题代码的查询结果。
  *
  * <p>定义由运行时直接提供，说明文本可以跟随运行时语言变化。语言服务不可用时，

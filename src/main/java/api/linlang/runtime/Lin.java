@@ -109,6 +109,10 @@ public final class Lin {
      * @throws IllegalStateException 运行时缺失、版本不兼容或无法识别
      */
     public static Linlang find(String requiredApiVersion) {
+        return find(requiredApiVersion, Lin.class);
+    }
+
+    private static Linlang find(String requiredApiVersion, Object owner) {
         Linlang x = discover();
         if (x == null) {
             throw new IllegalStateException(
@@ -116,8 +120,16 @@ public final class Lin {
                             requiredApiVersion + ". " + VersionCheck.PROJECT_URL
             );
         }
-        VersionCheck.requireCompatible(requiredApiVersion, x.runtimeVersion(), LinLog::warn);
+        requireCompatible(requiredApiVersion, x.runtimeVersion(), owner);
         return x;
+    }
+
+    private static void requireCompatible(String requiredApiVersion, String runtimeVersion, Object owner) {
+        if (LinLog.isInstalled()) {
+            VersionCheck.requireCompatible(requiredApiVersion, runtimeVersion, LinLog.forOwner(owner));
+            return;
+        }
+        VersionCheck.requireCompatible(requiredApiVersion, runtimeVersion, LinLog::warn);
     }
 
     /**
@@ -130,7 +142,7 @@ public final class Lin {
     public static Linlang getOrNull() {
         Linlang runtime = discover();
         if (runtime != null) {
-            VersionCheck.requireCompatible(API_VERSION, runtime.runtimeVersion(), LinLog::warn);
+            requireCompatible(API_VERSION, runtime.runtimeVersion(), Lin.class);
         }
         return runtime;
     }
@@ -174,7 +186,7 @@ public final class Lin {
      * @return 已就绪的插件门面
      */
     public static Linlang init(Object platformContext, String requiredApiVersion) {
-        var lin = find(requiredApiVersion);
+        var lin = find(requiredApiVersion, platformContext);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
@@ -203,7 +215,7 @@ public final class Lin {
      * @return 已就绪的插件门面
      */
     public static Linlang setup(Object platformContext, String requiredApiVersion, LinOptions linOptions) {
-        var lin = find(requiredApiVersion);
+        var lin = find(requiredApiVersion, platformContext);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
@@ -237,7 +249,7 @@ public final class Lin {
      */
     public static Linlang setup(Object platformContext, String requiredApiVersion,
                                 Function<Linlang, LinOptions> optionsBuilder) {
-        var lin = find(requiredApiVersion);
+        var lin = find(requiredApiVersion, platformContext);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);
@@ -275,7 +287,7 @@ public final class Lin {
      * @return 已配置的插件门面
      */
     public static Linlang configure(Object platformContext, String requiredApiVersion, LinOptions opts) {
-        var lin = find(requiredApiVersion);
+        var lin = find(requiredApiVersion, platformContext);
         lin = maybeCreateFacade(lin, platformContext);
         if (lin instanceof Linlang.Parametric p) {
             p.withPlatformContext(platformContext);

@@ -13,7 +13,7 @@ import java.util.Set;
 public interface LangService {
 
     /**
-     * 绑定语言对象，并允许生成和补齐语言文件。
+     * 绑定语言对象，并允许生成语言文件和缺失键差异记录。
      *
      * @param keysClass 语言对象类
      * @param <T> 语言对象类型
@@ -70,7 +70,8 @@ public interface LangService {
     /**
      * 重新扫描语言目录，并原地刷新所有已绑定语言对象。
      *
-     * <p>该方法不会改变当前全局语言；允许写回的语言包会同时补齐缺失键。</p>
+     * <p>该方法不会改变当前全局语言。已有文件缺少的键会在内存中使用默认值，
+     * 是否写回原文件取决于运行时修复策略。</p>
      *
      * <p>外部修改语言文件后，需要调用此方法使修改生效。</p>
      */
@@ -106,16 +107,29 @@ public interface LangService {
     Set<String> availableLocales();
 
     /**
-     * 检查并补齐所有已发现 locale 文件的缺失键。
+     * 检查所有已发现 locale 文件的缺失键并生成差异记录。
      *
-     * <p>该方法会按 Keys Class 的字段结构作为 schema，对目录中每个 locale 文件补齐缺失字段。</p>
+     * <p>该方法按 Keys Class 的字段结构作为 schema，但不表示对原文件的修复授权。
+     * 写回缺失键请调用 {@link #repairMissingKeys()}。</p>
      *
-     * <p>是否写回磁盘取决于 bind 时的 emit 或 {@code @LangPack.emit}</p>
+     * <p>是否生成差异记录取决于 bind 时的 emit 或 {@code @LangPack.emit}。</p>
      */
     void ensureAllLocales();
 
     /**
-     * 对指定语言对象的所有已发现 locale 文件执行缺失键补齐。
+     * 将所有已绑定语言包中发现的缺失键写回原文件。
+     *
+     * <p>该调用表示调用方已经明确允许本次修复。YAML 会在补入的键前添加 Linlang 标记；
+     * JSON 会保留差异文件作为记录。</p>
+     *
+     * @return 本次写入的缺失键数量
+     */
+    default int repairMissingKeys() {
+        return 0;
+    }
+
+    /**
+     * 对指定语言对象的所有已发现 locale 文件执行缺失键检查。
      *
      * @param keysClass 语言对象类
      * @param <T> 语言对象类型

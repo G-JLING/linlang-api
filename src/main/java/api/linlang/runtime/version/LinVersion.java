@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 四段数字版本；比较时忽略预发布标记与构建元数据。
+ * @hidden
  */
 public record LinVersion(int a, int b, int c, int d) implements Comparable<LinVersion> {
     private static final Pattern FORMAT = Pattern.compile(
