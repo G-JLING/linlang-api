@@ -18,8 +18,21 @@ public final class VersionCheck {
     public static final String INCOMPATIBLE_CODE = "LIN-RUNTIME-VERSION-INCOMPATIBLE";
     public static final String WARNING_CODE = "LIN-RUNTIME-VERSION-MISMATCH";
     public static final String INVALID_CODE = "LIN-RUNTIME-VERSION-INVALID";
+    private static volatile boolean compatibleVersionWarnings = true;
 
     private VersionCheck() {
+    }
+
+    /**
+     * 设置是否输出兼容版本差异警告。
+     *
+     * <p>该设置只影响 {@link Status#WARNING}，不会改变兼容性结果，也不会隐藏或放行
+     * {@link Status#INCOMPATIBLE} 与 {@link Status#INVALID}。</p>
+     *
+     * @param enabled 是否输出兼容版本差异警告
+     */
+    public static void compatibleVersionWarnings(boolean enabled) {
+        compatibleVersionWarnings = enabled;
     }
 
     /**
@@ -79,7 +92,7 @@ public final class VersionCheck {
         Objects.requireNonNull(warning, "warning");
         Result result = check(required, installed);
         if (!result.allowed()) throw new IllegalStateException(result.message());
-        if (result.warning()) warning.accept(result.message());
+        if (result.warning() && compatibleVersionWarnings) warning.accept(result.message());
         return result;
     }
 
@@ -103,6 +116,7 @@ public final class VersionCheck {
         ProblemDefinition definition = audit.problem().lookup(result.code()).orElse(null);
         String message = message(result, definition);
         if (!result.allowed()) throw new IllegalStateException(message);
+        if (!compatibleVersionWarnings) return result;
 
         audit.logger().warn(
                 message,

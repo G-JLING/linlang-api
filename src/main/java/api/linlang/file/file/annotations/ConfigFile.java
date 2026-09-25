@@ -31,4 +31,9 @@ public @interface ConfigFile {
      * @return 配置文件格式
      */
     FileType format() default FileType.YAML;
+
+    /**
+     * @return 是否允许生成、修复和写回磁盘配置文件
+     */
+    boolean emit() default true;
 }

@@ -86,13 +86,15 @@ public interface LangService {
      * @param keysClass 语言对象类
      * @param locale    locale，如 zh_CN / en_GB
      * @param <T> 语言对象类型
+     * @throws FileSaveException 文件无法写入；对应 Problem 已由服务记录
      */
     <T> void save(Class<T> keysClass, String locale);
 
     /**
      * 将所有已绑定活动语言对象保存到当前全局语言对应的文件。
      *
-     * <p>该方法用于将内存中对语言对象字段的修改写回文件。</p>
+     * <p>该方法用于将内存中对语言对象字段的修改写回文件。单个语言包保存失败时，
+     * 服务会报告 Problem 并继续保存其他语言包，不会从该方法抛出 {@link FileSaveException}。</p>
      */
     void saveAll();
 

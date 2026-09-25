@@ -87,6 +87,7 @@ public interface ConfigService {
      * @param type 配置类
      * @param config 待保存对象
      * @param <T> 配置对象类型
+     * @throws FileSaveException 文件无法写入；对应 Problem 已由服务记录
      * @hidden
      */
     <T> void save(Class<T> type, T config);
@@ -94,7 +95,8 @@ public interface ConfigService {
     /**
      * 保存所有已绑定且允许写回的配置对象。
      *
-     * <p>应在插件关闭或主动重载前调用，以保留内存中的修改。</p>
+     * <p>应在插件关闭或主动重载前调用，以保留内存中的修改。单个文件保存失败时，
+     * 服务会报告 Problem 并继续保存其他配置，不会从该方法抛出 {@link FileSaveException}。</p>
      */
     void saveAll();
 
