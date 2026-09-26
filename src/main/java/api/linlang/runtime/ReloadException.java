@@ -1,5 +1,7 @@
 package api.linlang.runtime;
 
+import api.linlang.audit.problem.ReportedProblemException;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,7 +9,7 @@ import java.util.Map;
 /**
  * 重载的部分或全部步骤失败；各步骤已记录诊断，调用方不应重复打印堆栈。
  */
-public final class ReloadException extends IllegalStateException {
+public final class ReloadException extends IllegalStateException implements ReportedProblemException {
     private final Map<String, Throwable> failures;
 
     /**

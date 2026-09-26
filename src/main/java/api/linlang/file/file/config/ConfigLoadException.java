@@ -1,5 +1,7 @@
 package api.linlang.file.file.config;
 
+import api.linlang.audit.problem.ReportedProblemException;
+
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -12,7 +14,7 @@ import java.util.Map;
  * <p>批量重载会处理其余文件后抛出此异常。失败文件保留原有活动值，
  * 成功文件正常更新；调用方不应再次打印同一异常堆栈。</p>
  */
-public final class ConfigLoadException extends IllegalStateException {
+public final class ConfigLoadException extends IllegalStateException implements ReportedProblemException {
     private final Map<Path, List<ConfigIssue>> failures;
 
     /**
