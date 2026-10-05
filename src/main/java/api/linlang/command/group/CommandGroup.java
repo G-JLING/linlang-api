@@ -3,8 +3,6 @@ package api.linlang.command.group;
 import api.linlang.command.CommandOptions;
 import api.linlang.command.LinCommand;
 
-import java.util.Map;
-
 /**
  * 可复用、可嵌套的命令组。
  *
@@ -54,21 +52,11 @@ public interface CommandGroup {
      * @param options 命令选项
      * @return 当前命令组
      */
-    default CommandGroup register(
+    CommandGroup register(
             String spec,
             LinCommand.CommandExecutor executor,
             CommandOptions options
-    ) {
-        CommandOptions value = java.util.Objects.requireNonNull(options, "options");
-        return registerLazy(
-                spec,
-                executor,
-                value.permission(),
-                value.target(),
-                value.description(),
-                value.labels()
-        );
-    }
+    );
 
     /**
      * @return 从根命令开始的完整命令路径
@@ -119,56 +107,4 @@ public interface CommandGroup {
      */
     CommandGroup onFailure(CommandFailureHandler handler);
 
-    /**
-     * 在当前组下注册相对命令规范。
-     */
-    CommandGroup register(
-            String spec,
-            LinCommand.CommandExecutor executor,
-            LinCommand.Permission permission,
-            LinCommand.ExecTarget target,
-            LinCommand.Desc description,
-            Map<String, Map<String, String>> labels
-    );
-
-    /**
-     * 在当前组下注册使用动态语言字段的相对命令规范。
-     */
-    CommandGroup registerLazy(
-            String spec,
-            LinCommand.CommandExecutor executor,
-            LinCommand.Permission permission,
-            LinCommand.ExecTarget target,
-            LinCommand.I18nSupplier description,
-            Map<String, LinCommand.I18nSupplier> labels
-    );
-
-    /**
-     * 在当前组下注册使用语言字段引用的相对命令规范。
-     */
-    default CommandGroup register(
-            String spec,
-            LinCommand.CommandExecutor executor,
-            LinCommand.Permission permission,
-            LinCommand.ExecTarget target,
-            LinCommand.I18n i18n
-    ) {
-        if (i18n == null) {
-            return registerLazy(spec, executor, permission, target, null, Map.of());
-        }
-        return registerLazy(spec, executor, permission, target, i18n.description(), i18n.labels());
-    }
-
-    /**
-     * 在当前组下注册不包含参数标签的静态命令。
-     */
-    default CommandGroup register(
-            String spec,
-            LinCommand.CommandExecutor executor,
-            LinCommand.Permission permission,
-            LinCommand.ExecTarget target,
-            LinCommand.Desc description
-    ) {
-        return register(spec, executor, permission, target, description, Map.of());
-    }
 }

@@ -232,20 +232,6 @@ public final class CommandOptions {
     }
 
     /**
-     * 导入已有的命令国际化配置。
-     *
-     * @param i18n 命令国际化配置
-     * @return 当前选项
-     */
-    public CommandOptions i18n(LinCommand.I18n i18n) {
-        LinCommand.I18n source = Objects.requireNonNull(i18n, "i18n");
-        this.description = source.description();
-        this.labels.clear();
-        this.labels.putAll(source.labels());
-        return this;
-    }
-
-    /**
      * @return 权限要求，可为 {@code null}
      */
     public LinCommand.Permission permission() {

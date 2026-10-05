@@ -7,6 +7,7 @@ Linlang（琳琅）是一个适用于 Bukkit/Paper 插件开发的服务框架�
 - 命令
 - 审计与日志
 - 容器 GUI
+- Bukkit 静态工具
 
 当前仓库为 Linlang API 仓库。要在 Bukkit/Paper Server 中使用 Linlang，您还需要安装 [Linlang Runtime](https://github.com/G-JLING/linlang)。
 
@@ -20,7 +21,7 @@ Linlang（琳琅）是一个适用于 Bukkit/Paper 插件开发的服务框架�
 <dependency>
     <groupId>me.jling</groupId>
     <artifactId>linlang-api</artifactId>
-    <version>2.6.1.0</version>
+    <version>3.0.0.0</version>
     <scope>provided</scope>
 </dependency>
 ```

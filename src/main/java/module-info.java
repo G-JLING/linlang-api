@@ -10,6 +10,7 @@
  */
 module linlang.api {
     requires java.xml;
+    requires static org.bukkit;
     uses api.linlang.banner.provider.BannerFontProvider;
     exports api.linlang.runtime;
     exports api.linlang.runtime.version;
@@ -31,6 +32,7 @@ module linlang.api {
     exports api.linlang.messenger;
     exports api.linlang.messenger.transport;
     exports api.linlang.text;
+    exports api.linlang.tool;
     exports api.linlang.audit;
     exports api.linlang.audit.event;
     exports api.linlang.audit.log;

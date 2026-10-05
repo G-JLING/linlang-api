@@ -18,7 +18,7 @@ import java.util.Optional;
  * 日志、审计与问题报告的静态兼容门面。
  *
  * <p>插件业务代码优先通过 {@code lin.linAudit()} 取得绑定当前插件的统一入口。
- * 本类保留给运行时内部代码和旧版本调用方式使用。</p>
+ * 本类供运行时内部代码和无法直接取得插件门面的基础设施使用。</p>
  */
 public final class LinLog {
 
@@ -341,18 +341,6 @@ public final class LinLog {
 
     public static void banner(String message) {
         publish(null, LogLevel.INFO, LogChannel.BANNER, message, null);
-    }
-
-    /**
-     * 旧版 Banner 方法。
-     *
-     * @param message Banner 文本
-     * @deprecated 使用 {@link #banner(String)}
-     * @hidden
-     */
-    @Deprecated
-    public static void banr(String message) {
-        banner(message);
     }
 
     public static void audit(String event, Object... fields) {

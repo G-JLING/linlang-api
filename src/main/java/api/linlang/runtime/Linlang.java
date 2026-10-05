@@ -97,23 +97,6 @@ public interface Linlang {
     }
 
     /**
-     * 兼容旧版参数入口。
-     *
-     * @deprecated 请使用 {@link #settings()} 统一设置。
-     *
-     * <p>例如平台上下文、全局语言等。调用 {@link Parameters#apply()} 后原地应用，不替换服务</p>
-     *
-     * @return 运行参数构建器
-     * @throws IllegalStateException 当前运行时不支持参数设置时
-     */
-    @Deprecated
-    default Parameters parameters() {
-        if (!(this instanceof Parametric p))
-            throw new IllegalStateException("This Linlang is not parameterizable.");
-        return new Parameters(this, p);
-    }
-
-    /**
      * 琳琅服务的统一设置项
      *
      * <p>调用 apply 后原地应用设置，不会重建服务或清空命令注册。</p>
@@ -229,67 +212,6 @@ public interface Linlang {
     }
 
     /**
-     * 琳琅服务的运行参数设置项
-     *
-     * <p>语言参数原地更新，已有服务、命令注册和语言引用继续有效</p>
-     */
-    final class Parameters {
-
-        private final Linlang owner;
-        private final Parametric p;
-        private Object platformContext;
-        private String locale;
-
-        /**
-         * @hidden
-         */
-        Parameters(Linlang owner, Parametric p) {
-            this.owner = owner;
-            this.p = p;
-        }
-
-        /**
-         * 设置平台上下文
-         *
-     * @param platformContext 平台上下文对象（如 Bukkit 的 JavaPlugin 实例）
-     * @return 当前参数构建器
-         */
-        public Parameters platformContext(Object platformContext) {
-            this.platformContext = java.util.Objects.requireNonNull(platformContext);
-            return this;
-        }
-
-        /**
-         * 设置琳琅的启动语言
-         *
-         * <b>琳琅服务的全局参数：语言</b>
-         *
-     * @param v 地区代码，遵循 <code>language_REGION</code> 格式，如 <code>zh_CN</code>
-     * @return 当前参数构建器
-         */
-        public Parameters totalLocale(String v) {
-            if (v == null || v.isBlank()) throw new IllegalArgumentException("locale");
-            locale = v;
-            return this;
-        }
-
-        /**
-         * 应用运行参数设置
-         *
-     * <p>原地应用运行参数，不重建服务，也不重载无关配置。</p>
-     *
-     * @return 所属 Linlang 门面
-         */
-        public Linlang apply() {
-            if (platformContext != null) p.withPlatformContext(platformContext);
-            if (locale != null) p.totalLocale(locale);
-            p.applyParameters();
-            return owner;
-        }
-    }
-
-
-    /**
      * @hidden
      */
     interface Configurable {
@@ -320,7 +242,7 @@ public interface Linlang {
         void restart();
 
         /**
-         * 原地应用参数；旧运行时必须显式拒绝，不能退回破坏性重建。
+         * 原地应用参数；不支持时必须显式拒绝，不能退回破坏性重建。
          */
         default void applyParameters() {
             throw new UnsupportedOperationException("Runtime does not support live parameter updates");

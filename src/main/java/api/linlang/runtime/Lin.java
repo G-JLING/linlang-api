@@ -36,44 +36,26 @@ public final class Lin {
     }
 
     /**
-     * 尝试通过运行时提供的 factory 方法为指定 platformContext 创建一个 per-plugin 的 facade。
-     * 若运行时未提供相应 factory，则返回原始 lin 实例。
+     * 通过运行时的标准工厂方法创建插件级 Facade。
      *
-     * @param lin
-     * @param platformContext
-     * @return
+     * @param lin 共享运行时
+     * @param platformContext 平台插件上下文
+     * @return 插件级 Facade
+     * @throws IllegalStateException 运行时未实现 3.0 工厂契约或创建失败时
      */
     private static Linlang maybeCreateFacade(Linlang lin, Object platformContext) {
         if (lin == null || platformContext == null) return lin;
 
         Class<?> implClass = lin.getClass();
-        Class<?> ctxClass = platformContext.getClass();
-
-        // 优先尝试精确签名 create(Object) 以兼容旧实现
         try {
             java.lang.reflect.Method m = implClass.getMethod("createFacade", Object.class);
             Object out = m.invoke(lin, platformContext);
             return requireFacade(out, m);
-        } catch (NoSuchMethodException ignored) {
+        } catch (NoSuchMethodException exception) {
+            throw new IllegalStateException("Linlang runtime does not provide createFacade(Object).", exception);
         } catch (ReflectiveOperationException e) {
             throw facadeCreationFailed(e);
         }
-
-        // 回退：查找兼容的单参数工厂方法
-        for (java.lang.reflect.Method m : implClass.getMethods()) {
-            if (!m.getName().equals("createFacade") && !m.getName().equals("create")) continue;
-            Class<?>[] params = m.getParameterTypes();
-            if (params.length != 1) continue;
-            if (!params[0].isAssignableFrom(ctxClass)) continue;
-            try {
-                Object out = m.invoke(lin, platformContext);
-                return requireFacade(out, m);
-            } catch (ReflectiveOperationException e) {
-                throw facadeCreationFailed(e);
-            }
-        }
-
-        return lin;
     }
 
     private static Linlang requireFacade(Object value, java.lang.reflect.Method method) {
@@ -148,6 +130,7 @@ public final class Lin {
     }
 
     private static Linlang discover() {
+        if (cached != null) return cached;
         boolean bukkitAvailable = false;
         try {
             Class<?> bukkit = Class.forName("org.bukkit.Bukkit");
@@ -160,8 +143,6 @@ public final class Lin {
         }
 
         if (bukkitAvailable) return null;
-        if (cached != null) return cached;
-
         for (Linlang impl : ServiceLoader.load(Linlang.class)) {
             return cached = impl;
         }

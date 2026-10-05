@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * @hidden
+ *
  * 已由配置服务报告的加载失败，可包含多个文件的问题。
  *
  * <p>批量重载会处理其余文件后抛出此异常。失败文件保留原有活动值，

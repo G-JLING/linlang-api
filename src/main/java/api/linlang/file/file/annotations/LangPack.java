@@ -24,15 +24,6 @@ public @interface LangPack {
     String filePath() default "lang";
 
     /**
-     * 旧版语言包路径属性。
-     *
-     * @deprecated 请使用 {@link #filePath()}
-     * @return 相对语言包路径
-     */
-    @Deprecated
-    String path() default "";
-
-    /**
      * @return 语言文件格式
      */
     FileType format() default FileType.YAML;
