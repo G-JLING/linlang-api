@@ -32,6 +32,10 @@ public final class TextArgs {
         return EMPTY;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     /**
      * 通过名称和值交替排列的参数创建变量集合。
      *
@@ -78,5 +82,26 @@ public final class TextArgs {
      */
     public boolean isEmpty() {
         return values.isEmpty();
+    }
+
+    /**
+     * 显式区分普通变量与可信高级文本变量。
+     */
+    public static final class Builder {
+        private final Map<String, Object> values = new LinkedHashMap<>();
+
+        public Builder plain(String name, Object value) {
+            values.put(name, value == null ? "" : String.valueOf(value));
+            return this;
+        }
+
+        public Builder rich(String name, TextSource value) {
+            values.put(name, value);
+            return this;
+        }
+
+        public TextArgs build() {
+            return new TextArgs(values);
+        }
     }
 }

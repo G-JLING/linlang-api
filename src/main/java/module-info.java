@@ -10,6 +10,11 @@
  */
 module linlang.api {
     requires java.xml;
+    requires net.kyori.adventure;
+    requires net.kyori.adventure.key;
+    requires net.kyori.adventure.text.serializer.legacy;
+    requires net.kyori.adventure.text.serializer.plain;
+    requires net.kyori.adventure.text.serializer.gson;
     requires static org.bukkit;
     uses api.linlang.banner.provider.BannerFontProvider;
     exports api.linlang.runtime;

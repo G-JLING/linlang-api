@@ -1,6 +1,7 @@
 package api.linlang.command;
 
 import api.linlang.file.file.LangText;
+import api.linlang.text.TextSource;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -28,7 +29,9 @@ public final class CommandOptions {
     private LinCommand.Permission permission;
     private LinCommand.ExecTarget target = LinCommand.ExecTarget.ALL;
     private LinCommand.I18nSupplier description;
+    private TextSource richDescription;
     private final Map<String, LinCommand.I18nSupplier> labels = new LinkedHashMap<>();
+    private final Map<String, TextSource> richLabels = new LinkedHashMap<>();
 
     private CommandOptions() {
     }
@@ -124,7 +127,18 @@ public final class CommandOptions {
      * @return 当前选项
      */
     public CommandOptions desc(LangText text) {
-        this.description = LinCommand.I18nSupplier.from(Objects.requireNonNull(text, "text"));
+        return desc((TextSource) text);
+    }
+
+    /**
+     * 设置可解析为高级文本的动态命令描述。
+     *
+     * @param text 命令描述来源
+     * @return 当前选项
+     */
+    public CommandOptions desc(TextSource text) {
+        this.richDescription = Objects.requireNonNull(text, "text");
+        this.description = locale -> text.resolve(locale);
         return this;
     }
 
@@ -136,6 +150,7 @@ public final class CommandOptions {
      */
     public CommandOptions descProvider(LinCommand.I18nSupplier provider) {
         this.description = provider;
+        this.richDescription = null;
         return this;
     }
 
@@ -147,7 +162,20 @@ public final class CommandOptions {
      * @return 当前选项
      */
     public CommandOptions label(String name, LangText text) {
-        return labelProvider(name, LinCommand.I18nSupplier.from(Objects.requireNonNull(text, "text")));
+        return label(name, (TextSource) text);
+    }
+
+    /**
+     * 设置动态参数标签；帮助与补全会使用其纯文本结果。
+     *
+     * @param name 命令规范中的参数名
+     * @param text 参数标签来源
+     * @return 当前选项
+     */
+    public CommandOptions label(String name, TextSource text) {
+        labelProvider(name, locale -> text.resolve(locale));
+        richLabels.put(name, Objects.requireNonNull(text, "text"));
+        return this;
     }
 
     /**
@@ -162,6 +190,7 @@ public final class CommandOptions {
             throw new IllegalArgumentException("name");
         }
         labels.put(name, Objects.requireNonNull(provider, "provider"));
+        richLabels.remove(name);
         return this;
     }
 
@@ -252,10 +281,18 @@ public final class CommandOptions {
         return description;
     }
 
+    public TextSource richDescription() {
+        return richDescription;
+    }
+
     /**
      * @return 不可修改的参数标签映射
      */
     public Map<String, LinCommand.I18nSupplier> labels() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(labels));
+    }
+
+    public Map<String, TextSource> richLabels() {
+        return Collections.unmodifiableMap(new LinkedHashMap<>(richLabels));
     }
 }

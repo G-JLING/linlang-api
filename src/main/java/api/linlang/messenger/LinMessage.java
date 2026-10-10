@@ -1,6 +1,5 @@
 package api.linlang.messenger;
 
-import api.linlang.text.LinText;
 import api.linlang.text.TextArgs;
 import api.linlang.text.TextSource;
 
@@ -22,10 +21,11 @@ public final class LinMessage {
     private final PrefixMode prefixMode;
     private final FallbackPolicy fallbackPolicy;
     private final TitleTimes titleTimes;
+    private final String locale;
 
     private LinMessage(MessageChannel channel, TextSource content, TextSource subtitle,
                        TextArgs args, PrefixMode prefixMode, FallbackPolicy fallbackPolicy,
-                       TitleTimes titleTimes) {
+                       TitleTimes titleTimes, String locale) {
         this.channel = Objects.requireNonNull(channel, "channel");
         this.content = Objects.requireNonNull(content, "content");
         this.subtitle = subtitle;
@@ -33,6 +33,7 @@ public final class LinMessage {
         this.prefixMode = Objects.requireNonNull(prefixMode, "prefixMode");
         this.fallbackPolicy = Objects.requireNonNull(fallbackPolicy, "fallbackPolicy");
         this.titleTimes = Objects.requireNonNull(titleTimes, "titleTimes");
+        this.locale = Objects.requireNonNullElse(locale, "");
     }
 
     /**
@@ -52,7 +53,7 @@ public final class LinMessage {
      * @return 聊天消息
      */
     public static LinMessage chat(String content) {
-        return chat(LinText.of(content));
+        return chat(() -> content);
     }
 
     /**
@@ -72,7 +73,7 @@ public final class LinMessage {
      * @return 动作栏消息
      */
     public static LinMessage actionBar(String content) {
-        return actionBar(LinText.of(content));
+        return actionBar(() -> content);
     }
 
     /**
@@ -94,12 +95,12 @@ public final class LinMessage {
      * @return 标题消息
      */
     public static LinMessage title(String title, String subtitle) {
-        return title(LinText.of(title), LinText.of(subtitle));
+        return title(() -> title, () -> subtitle);
     }
 
     private static LinMessage create(MessageChannel channel, TextSource content, TextSource subtitle) {
         return new LinMessage(channel, content, subtitle, TextArgs.empty(), PrefixMode.AUTO,
-                FallbackPolicy.REJECT, TitleTimes.defaults());
+                FallbackPolicy.REJECT, TitleTimes.defaults(), "");
     }
 
     /**
@@ -187,9 +188,20 @@ public final class LinMessage {
         return times(TitleTimes.of(fadeIn, stay, fadeOut));
     }
 
+    /**
+     * 覆盖本条消息解析语言引用时使用的语言。
+     *
+     * @param locale 语言标签；空字符串表示使用服务当前语言
+     * @return 新消息对象
+     */
+    public LinMessage locale(String locale) {
+        return new LinMessage(channel, content, subtitle, args, prefixMode,
+                fallbackPolicy, titleTimes, locale);
+    }
+
     private LinMessage copy(TextArgs args, PrefixMode prefixMode,
                             FallbackPolicy fallbackPolicy, TitleTimes titleTimes) {
-        return new LinMessage(channel, content, subtitle, args, prefixMode, fallbackPolicy, titleTimes);
+        return new LinMessage(channel, content, subtitle, args, prefixMode, fallbackPolicy, titleTimes, locale);
     }
 
     /**
@@ -253,5 +265,9 @@ public final class LinMessage {
      */
     public TitleTimes titleTimes() {
         return titleTimes;
+    }
+
+    public String locale() {
+        return locale;
     }
 }

@@ -10,8 +10,8 @@ import java.util.Objects;
 /**
  * 交给消息传输层的规范化消息。
  *
- * <p>其中的语言引用和变量已经解析，内容不再依赖语言对象。该模型不包含 Bukkit 类型，
- * 可由未来的网络模块序列化并发送到其他服务器。</p>
+ * <p>其中的语言引用和变量已经解析，内容不再依赖语言对象。文本可通过
+ * {@link LinText#toJson()} 序列化，网络协议应另外携带格式版本。</p>
  */
 public final class TransportMessage {
 
