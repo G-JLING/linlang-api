@@ -171,7 +171,22 @@ public final class VersionCheck {
      * 检查状态。
      */
     public enum Status {
-        COMPATIBLE, WARNING, INCOMPATIBLE, INVALID
+        /**
+         * 兼容，无需提示。
+         */
+        COMPATIBLE,
+        /**
+         * 允许运行，但需要发出版本警告。
+         */
+        WARNING,
+        /**
+         * 版本不兼容，禁止运行。
+         */
+        INCOMPATIBLE,
+        /**
+         * 版本格式无效。
+         */
+        INVALID
     }
 
     /**
@@ -179,10 +194,20 @@ public final class VersionCheck {
      * message 是不依赖 Runtime 与语言目录的英文回退文本。
      */
     public record Result(Status status, String required, String installed, boolean installedOlder, String message) {
+        /**
+         * 判断是否可以在当前运行时继续执行。
+         *
+         * @return 兼容或仅需警告时为 {@code true}
+         */
         public boolean allowed() {
             return status == Status.COMPATIBLE || status == Status.WARNING;
         }
 
+        /**
+         * 判断是否需要显示兼容性警告。
+         *
+         * @return 需要警告时为 {@code true}
+         */
         public boolean warning() {
             return status == Status.WARNING;
         }

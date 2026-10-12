@@ -281,6 +281,11 @@ public final class CommandOptions {
         return description;
     }
 
+    /**
+     * 返回高级文本形式的命令描述来源。
+     *
+     * @return 描述来源；使用普通提供者或未设置描述时为 {@code null}
+     */
     public TextSource richDescription() {
         return richDescription;
     }
@@ -292,6 +297,11 @@ public final class CommandOptions {
         return Collections.unmodifiableMap(new LinkedHashMap<>(labels));
     }
 
+    /**
+     * 返回高级文本形式的参数标签快照。
+     *
+     * @return 不可修改的参数标签映射
+     */
     public Map<String, TextSource> richLabels() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(richLabels));
     }

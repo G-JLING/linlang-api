@@ -64,34 +64,74 @@ public final class AuditEvent {
         return builder.build();
     }
 
+    /**
+     * 返回事件时间。
+     *
+     * @return 事件时间
+     */
     public Instant timestamp() {
         return timestamp;
     }
 
+    /**
+     * 返回稳定的事件标识。
+     *
+     * @return 事件标识
+     */
     public String event() {
         return event;
     }
 
+    /**
+     * 返回操作者标识。
+     *
+     * @return 操作者标识；未设置时为 {@code null}
+     */
     public String actor() {
         return actor;
     }
 
+    /**
+     * 返回操作名称。
+     *
+     * @return 操作名称；未设置时为 {@code null}
+     */
     public String action() {
         return action;
     }
 
+    /**
+     * 返回资源标识。
+     *
+     * @return 资源标识；未设置时为 {@code null}
+     */
     public String resource() {
         return resource;
     }
 
+    /**
+     * 返回执行结果。
+     *
+     * @return 执行结果，默认 {@link AuditOutcome#UNKNOWN}
+     */
     public AuditOutcome outcome() {
         return outcome;
     }
 
+    /**
+     * 返回关联标识。
+     *
+     * @return 关联标识；未设置时为 {@code null}
+     */
     public String correlationId() {
         return correlationId;
     }
 
+    /**
+     * 返回扩展字段。
+     *
+     * @return 不可修改的扩展字段映射
+     */
     public Map<String, Object> fields() {
         return fields;
     }
@@ -117,36 +157,80 @@ public final class AuditEvent {
             this.event = event.trim();
         }
 
+        /**
+         * 设置事件发生时间。
+         *
+         * @param timestamp 事件时间
+         * @return 当前构造器
+         */
         public Builder timestamp(Instant timestamp) {
             this.timestamp = Objects.requireNonNull(timestamp, "timestamp");
             return this;
         }
 
+        /**
+         * 设置操作者标识。
+         *
+         * @param actor 操作者标识
+         * @return 当前构造器
+         */
         public Builder actor(String actor) {
             this.actor = actor;
             return this;
         }
 
+        /**
+         * 设置操作名称。
+         *
+         * @param action 操作名称
+         * @return 当前构造器
+         */
         public Builder action(String action) {
             this.action = action;
             return this;
         }
 
+        /**
+         * 设置受影响的资源标识。
+         *
+         * @param resource 资源标识
+         * @return 当前构造器
+         */
         public Builder resource(String resource) {
             this.resource = resource;
             return this;
         }
 
+        /**
+         * 设置执行结果；{@code null} 视为 {@link AuditOutcome#UNKNOWN}。
+         *
+         * @param outcome 执行结果
+         * @return 当前构造器
+         */
         public Builder outcome(AuditOutcome outcome) {
             this.outcome = outcome == null ? AuditOutcome.UNKNOWN : outcome;
             return this;
         }
 
+        /**
+         * 设置跨事件关联标识。
+         *
+         * @param correlationId 关联标识
+         * @return 当前构造器
+         */
         public Builder correlationId(String correlationId) {
             this.correlationId = correlationId;
             return this;
         }
 
+        /**
+         * 添加或覆盖一个扩展字段。
+         *
+         * @param key 非空白字段名
+         * @param value 字段值
+         * @return 当前构造器
+         * @throws IllegalArgumentException 字段名为空白时
+         */
         public Builder field(String key, Object value) {
             if (key == null || key.isBlank()) {
                 throw new IllegalArgumentException("key");
@@ -155,6 +239,11 @@ public final class AuditEvent {
             return this;
         }
 
+        /**
+         * 创建不可变审计事件。
+         *
+         * @return 审计事件
+         */
         public AuditEvent build() {
             return new AuditEvent(this);
         }

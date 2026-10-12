@@ -7,7 +7,8 @@ import java.util.Map;
 /**
  * 高级字符串的命名变量集合。
  *
- * <p>普通对象会作为安全的普通文本插入，{@link TextSource} 会作为高级文本插入。</p>
+ * <p>普通对象会作为安全的普通文本插入，{@link TextSource} 会作为可信高级文本插入。
+ * 只对可控的内容使用 {@link Builder#rich(String, TextSource)}，避免让外部输入携带交互事件。</p>
  */
 public final class TextArgs {
 
@@ -32,6 +33,11 @@ public final class TextArgs {
         return EMPTY;
     }
 
+    /**
+     * 创建可逐项区分普通文本与高级文本的构造器。
+     *
+     * @return 新构造器
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -90,16 +96,35 @@ public final class TextArgs {
     public static final class Builder {
         private final Map<String, Object> values = new LinkedHashMap<>();
 
+        /**
+         * 添加普通文本变量，不解析变量值中的描述符。
+         *
+         * @param name 变量名
+         * @param value 变量值；{@code null} 视为空字符串
+         * @return 当前构造器
+         */
         public Builder plain(String name, Object value) {
             values.put(name, value == null ? "" : String.valueOf(value));
             return this;
         }
 
+        /**
+         * 添加可信的高级文本变量，保留其样式和事件。
+         *
+         * @param name 变量名
+         * @param value 高级文本来源
+         * @return 当前构造器
+         */
         public Builder rich(String name, TextSource value) {
             values.put(name, value);
             return this;
         }
 
+        /**
+         * 创建不可变的变量快照。
+         *
+         * @return 变量集合
+         */
         public TextArgs build() {
             return new TextArgs(values);
         }

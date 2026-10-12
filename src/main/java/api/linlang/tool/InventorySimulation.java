@@ -20,6 +20,11 @@ public record InventorySimulation(
 
     /**
      * 创建不可变的装入模拟结果。
+     *
+     * @param requestedAmount 请求装入的物品总量
+     * @param acceptedAmount 能够装入的物品总量
+     * @param leftovers 无法装入的物品副本
+     * @throws IllegalArgumentException 数量不一致或超出范围时
      */
     public InventorySimulation {
         if (requestedAmount < 0) throw new IllegalArgumentException("requestedAmount");

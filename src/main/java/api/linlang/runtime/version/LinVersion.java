@@ -14,6 +14,12 @@ public record LinVersion(int a, int b, int c, int d) implements Comparable<LinVe
 
     /**
      * 创建非负的四段版本。
+     *
+     * @param a 主版本号
+     * @param b 次版本号
+     * @param c 功能版本号
+     * @param d 修订版本号
+     * @throws IllegalArgumentException 任一段为负数时
      */
     public LinVersion {
         if (a < 0 || b < 0 || c < 0 || d < 0) {

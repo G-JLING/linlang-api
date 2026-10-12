@@ -9,6 +9,12 @@ import java.util.Objects;
  * @param message 原因与修正提示
  */
 public record ConfigIssue(String key, String message) {
+    /**
+     * 校验配置问题的必要字段。
+     *
+     * @param key 配置路径
+     * @param message 原因与修正提示
+     */
     public ConfigIssue {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(message, "message");

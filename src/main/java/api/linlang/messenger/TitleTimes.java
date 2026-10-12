@@ -14,6 +14,9 @@ public record TitleTimes(int fadeIn, int stay, int fadeOut) {
     /**
      * 创建标题时长。
      *
+     * @param fadeIn 淡入时长
+     * @param stay 停留时长
+     * @param fadeOut 淡出时长
      * @throws IllegalArgumentException 任意时长为负数时
      */
     public TitleTimes {

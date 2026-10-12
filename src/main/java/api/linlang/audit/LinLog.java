@@ -241,18 +241,42 @@ public final class LinLog {
         };
     }
 
+    /**
+     * 记录调试日志。
+     *
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void debug(String message, Object... values) {
         publish(null, LogLevel.DEBUG, LogChannel.STANDARD, message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录调试日志。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void debug(LogTemplate template, Object... values) {
         publish(null, LogLevel.DEBUG, LogChannel.STANDARD, template, null, values);
     }
 
+    /**
+     * 记录普通信息日志。
+     *
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void info(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STANDARD, message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录普通信息日志。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void info(LogTemplate template, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STANDARD, template, null, values);
     }
@@ -267,106 +291,258 @@ public final class LinLog {
         publish(null, LogLevel.INFO, LogChannel.FILE, message, null, values);
     }
 
+    /**
+     * 使用结构化模板只向普通日志文件记录信息。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void file(LogTemplate template, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.FILE, template, null, values);
     }
 
+    /**
+     * 记录警告日志。
+     *
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void warn(String message, Object... values) {
         publish(null, LogLevel.WARN, LogChannel.STANDARD, message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录警告日志。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void warn(LogTemplate template, Object... values) {
         publish(null, LogLevel.WARN, LogChannel.STANDARD, template, null, values);
     }
 
+    /**
+     * 记录带原因的警告日志。
+     *
+     * @param message 日志模板
+     * @param cause 关联异常
+     * @param values 模板参数
+     */
     public static void warn(String message, Throwable cause, Object... values) {
         publish(null, LogLevel.WARN, LogChannel.STANDARD, message, cause, values);
     }
 
+    /**
+     * 使用结构化模板记录带原因的警告日志。
+     *
+     * @param template 日志模板
+     * @param cause 关联异常
+     * @param values 模板参数
+     */
     public static void warn(LogTemplate template, Throwable cause, Object... values) {
         publish(null, LogLevel.WARN, LogChannel.STANDARD, template, cause, values);
     }
 
+    /**
+     * 记录带原因的错误日志。
+     *
+     * @param message 日志模板
+     * @param cause 关联异常
+     * @param values 模板参数
+     */
     public static void error(String message, Throwable cause, Object... values) {
         publish(null, LogLevel.ERROR, LogChannel.STANDARD, message, cause, values);
     }
 
+    /**
+     * 使用结构化模板记录带原因的错误日志。
+     *
+     * @param template 日志模板
+     * @param cause 关联异常
+     * @param values 模板参数
+     */
     public static void error(LogTemplate template, Throwable cause, Object... values) {
         publish(null, LogLevel.ERROR, LogChannel.STANDARD, template, cause, values);
     }
 
+    /**
+     * 记录错误日志。
+     *
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void error(String message, Object... values) {
         error(message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录错误日志。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void error(LogTemplate template, Object... values) {
         error(template, null, values);
     }
 
+    /**
+     * 记录初始化阶段日志。
+     *
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void init(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.INIT, message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录初始化阶段日志。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void init(LogTemplate template, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.INIT, template, null, values);
     }
 
+    /**
+     * 记录面向在线管理员的提示。
+     *
+     * @param message 消息模板
+     * @param values 模板参数
+     */
     public static void op(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.OP, message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录面向在线管理员的提示。
+     *
+     * @param template 消息模板
+     * @param values 模板参数
+     */
     public static void op(LogTemplate template, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.OP, template, null, values);
     }
 
+    /**
+     * 为指定插件记录面向在线管理员的提示。
+     *
+     * @param owner 插件或业务 owner
+     * @param message 消息模板
+     * @param values 模板参数
+     */
     public static void op(Object owner, String message, Object... values) {
         publish(owner, LogLevel.INFO, LogChannel.OP, message, null, values);
     }
 
+    /**
+     * 记录启动阶段日志。
+     *
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void startup(String message, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STARTUP, message, null, values);
     }
 
+    /**
+     * 使用结构化模板记录启动阶段日志。
+     *
+     * @param template 日志模板
+     * @param values 模板参数
+     */
     public static void startup(LogTemplate template, Object... values) {
         publish(null, LogLevel.INFO, LogChannel.STARTUP, template, null, values);
     }
 
+    /**
+     * 为指定插件记录启动阶段日志。
+     *
+     * @param owner 插件或业务 owner
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void startup(Object owner, String message, Object... values) {
         publish(owner, LogLevel.INFO, LogChannel.STARTUP, message, null, values);
     }
 
+    /**
+     * 为指定插件记录初始化阶段日志。
+     *
+     * @param owner 插件或业务 owner
+     * @param message 日志模板
+     * @param values 模板参数
+     */
     public static void init(Object owner, String message, Object... values) {
         publish(owner, LogLevel.INFO, LogChannel.INIT, message, null, values);
     }
 
+    /**
+     * 记录启动横幅消息。
+     *
+     * @param message 横幅内容
+     */
     public static void banner(String message) {
         publish(null, LogLevel.INFO, LogChannel.BANNER, message, null);
     }
 
+    /**
+     * 记录结构化审计事件。
+     *
+     * @param event 稳定的事件标识
+     * @param fields 扩展字段，按名称和值交替排列
+     */
     public static void audit(String event, Object... fields) {
         provider.publishAudit(null, AuditEvent.of(event, fields));
     }
 
+    /**
+     * 为指定插件记录结构化审计事件。
+     *
+     * @param owner 插件或业务 owner
+     * @param event 稳定的事件标识
+     * @param fields 扩展字段，按名称和值交替排列
+     */
     public static void audit(Object owner, String event, Object... fields) {
         provider.publishAudit(owner, AuditEvent.of(event, fields));
     }
 
+    /**
+     * 报告一个结构化问题。
+     *
+     * @param problem 问题对象
+     */
     public static void problem(LinProblem problem) {
         provider.publishProblem(null, Objects.requireNonNull(problem, "problem"));
     }
 
+    /**
+     * 刷新默认 owner 的待写记录。
+     */
     public static void flush() {
         provider.flush(null);
     }
 
+    /**
+     * 将默认 owner 的启动消息输出到控制台。
+     */
     public static void flushStartupToConsole() {
         provider.flushStartupToConsole(null);
     }
 
+    /**
+     * 将默认 owner 的管理员消息发送给在线管理员。
+     */
     public static void flushOpToOnlineOps() {
         provider.flushOpToOnlineOps(null);
     }
 
+    /**
+     * 将默认 owner 的管理员消息发送给指定目标。
+     *
+     * @param op 接收目标
+     */
     public static void flushOpTo(Object op) {
         provider.flushOpTo(null, op);
     }

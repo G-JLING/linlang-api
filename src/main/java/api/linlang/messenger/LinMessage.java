@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 可复用的一次性消息定义。
+ * 不可变的一次性消息定义。
  *
  * <p>普通发送场景应优先使用 {@link LinMessenger} 的便捷方法。只有需要覆盖前缀、降级或标题时长时，
  * 才需要直接构造该对象。</p>
@@ -267,6 +267,11 @@ public final class LinMessage {
         return titleTimes;
     }
 
+    /**
+     * 返回本条消息指定的解析语言。
+     *
+     * @return 语言标签；空字符串表示使用服务当前语言
+     */
     public String locale() {
         return locale;
     }
